@@ -127,6 +127,77 @@ public class NoticeController {
     return "/system/noticeList";
   }
   
+  	//공지사항 리스트 출력
+	@RequestMapping("noticeListvue.do")
+	@ResponseBody
+	public Map<String, Object> selectNoticeVue(@RequestParam(required = false) Map<String, Object> param, Model model, HttpSession session)throws Exception {
+		
+		// 현재 페이지 번호
+	    int currentPage = Integer.parseInt((String) param.get("currentPage"));
+	    
+	    // 한 페이지에 보일 로우의 개수
+	    int pageSize = Integer.parseInt((String)param.get("pageSize"));
+	    
+	    // 페이지 시작 로우 번호
+	    int pageIndex = (currentPage - 1) * pageSize;
+	    
+	    param.put("pageIndex", pageIndex);
+	    param.put("pageSize", pageSize);
+	    
+	    // 총 로우의 개수
+	    int totalCount;
+	    String userType = (String) session.getAttribute("userType");
+	    if(userType==null) userType = "E";	    
+	    // 권한 설명
+	    // 0(전체)
+	    // 1(직원)  E = SCM, F = PCS, F = DLV 
+	    int auth;
+	    
+	    switch(userType) {
+	      case "E" :
+	      case "F" :
+	      case "G" :
+	        auth = 1;
+	        break;
+	        
+	       default:
+	        auth = 0;
+	        break;
+	    }
+	    
+	    param.put("auth", auth);
+	   // log.info("selectNotice - param:"+ param);
+	    // 검색어 유무 확인
+	    if(param.containsKey("option")) {
+	      String option = (String) param.get("option");
+	      String keyword = (String) param.get("keyword");
+	      String formerDate = (String) param.get("formerDate");
+	      String latterDate = (String) param.get("latterDate");
+	      
+	      param.put("option", option);
+	      param.put("keyword", keyword);
+	      param.put("formerDate", formerDate);
+	      param.put("latterDate", latterDate);
+	      
+	      totalCount = noticeService.countConditionList(param);
+	    }
+	    else {
+	      // 검색어가 없는 경우     
+	      totalCount = noticeService.countNoticeList(auth);
+	    }
+	    
+	    List<NoticeModel> noticeList = noticeService.selectNoticeList(param); 
+	    
+	    Map<String, Object> resultMap = new HashMap<String, Object>();
+	    
+	    resultMap.put("noticeList", noticeList);
+	    resultMap.put("totalCount", totalCount);
+	    resultMap.put("pageSize", pageSize);
+	    resultMap.put("currentPage", currentPage);
+	    
+	    return resultMap;
+	}
+  
   
   /* 공지사항 작성 */
   @ResponseBody

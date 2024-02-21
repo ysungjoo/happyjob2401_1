@@ -7,22 +7,91 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <title>JobKorea</title>
 <jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+<script type="text/javascript" src="//rawgit.com/wenzhixin/vue-bootstrap-table/develop/docs/static/dist/vue-bootstrap-table.js"></script>
+<script type="text/javascript" src="//rawgit.com/wenzhixin/vue-bootstrap-table/develop/docs/static/dist/vue-bootstrap-table.js"></script>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
 <script type="text/javascript">
+  var noticeareavar;
+  var noticeLayer;
   // 페이징 설정
   var pageSize = 5;
   var pageBlock = 5;
   
+  function init(){
+	  noticeareavar = new Vue({
+		  el: '#divNoticeList',
+		  data: {
+			listitem:[]
+		  }, 
+		  methods:{					
+			  detailview:function(notice_id){
+				  //alert(no);
+				  fadeInModal('r', notice_id);  
+			  },
+			  writeModal: function() {
+				  var identifier = 'w';
+			      fadeInModal(identifier);
+			  }
+		  },
+		  created: function() {
+			  // 공지사항 목록 조회
+			  selectList();
+		  }
+		});	
+	  
+	  noticeLayer = new Vue({
+		  el: "#layer1",
+		  data: {
+			  noticeId: "",
+			  noticeTitle: "",
+			  noticeContent: "",
+			  noticeAuth: "",
+			  noticeDate: "",
+			  fileNo: "",
+			  filePath: "",
+			  fileName: "",
+			  modifyFile: false
+		  },
+		  methods: {
+				noticeSave: function() {
+					writeNotice();
+				},
+				noticeModify: function() {
+					modifyNotice();
+				},
+				noticeModifyModal: function() {
+					var identifier = 'm';
+				    fadeInModal(identifier);
+				},
+				noticeDelete: function() {
+					deleteNotice();
+				},
+				noticeClose: function() {
+					alert(this.noticeTitle);
+					gfCloseModal();
+				}
+		  }
+	  })
+  }
+  
   /* OnLoad event */
   $(function() {
+	 init();
     // 공지사항 목록 조회
-    selectList();
+    //selectList();
 
     /* datepicker설정 */
     // formerDate datepicker
     $('#datetimepicker1').datetimepicker({
-    //format : 'L',
-    format : 'YYYY-MM-DD',
-    formatDate : 'YYYY-MM-DD'
+    	//format : 'L',
+    	format : 'YYYY-MM-DD',
+    	formatDate : 'YYYY-MM-DD'
     });
 
     $('#datetimepicker2').datetimepicker({
@@ -85,36 +154,36 @@
       }
     });
 
-    /* 공지사항 작성 모달 이벤트 */
+    /* 공지사항 작성 모달 이벤트 
     $('#write_modal_button').click(function() {
       var identifier = 'w';
       fadeInModal(identifier);
     });
-
+*/
     /* 공지사항 작성 버튼 이벤트 */
     $('#write_button').click(function() {
-      writeNotice();
+      //writeNotice();
     });
 
     // 모달 닫기 버튼 이벤트
     $('#close_button').click(function() {
-      gfCloseModal();
+      //gfCloseModal();
     })
 
     // 공지사항 수정 모달 버튼 이벤트
     $('#modify_modal_button').click(function() {
-      var identifier = 'm';
-      fadeInModal(identifier);
+      //var identifier = 'm';
+      //fadeInModal(identifier);
     });
 
     // 공지사항 수정 버튼 이벤트
     $('#modify_button').click(function() {
-      modifyNotice();
+      //modifyNotice();
     });
 
     // 공지사항 삭제 버튼 이벤트
     $('#delete_button').click(function() {
-      deleteNotice();
+      //deleteNotice();
     })
 
     // 파일 삭제 버튼 이벤트
@@ -253,17 +322,21 @@
     var resultCallback = function(result) {
       selectListCallBack(result, currentPage);
     };
-    callAjax("/system/notice.do", "post", "text", true, param, resultCallback);
+    //callAjax("/system/notice.do", "post", "text", true, param, resultCallback);
+    callAjax("/system/noticeListvue.do", "post", "json", true, param, resultCallback);
+    
   }
 
   /* 공지사항 목록 조회 콜백 함수 */
   function selectListCallBack(result, currentPage) {
 
     // 기존 목록 삭제
-    $('#noticeList').empty();
+    //$('#noticeList').empty();
 
     // 신규 목록 생성
-    $("#noticeList").append(result);
+    //$("#noticeList").append(result);
+    //alert(result.noticeList.length);
+    noticeareavar.listitem = result.noticeList;
 
     // 리스트 로우의 총 개수 추출
     var totalCount = $("#totalCount").val();
@@ -503,10 +576,17 @@
     // file_no, file_nm
     // 삭제
     if (isDelete) {
+    	/*
       var notice_id = $('#notice_id').val();
       var file_no = $('#file_no').val();
       var file_nm = $('#file_name').val();
+      */
       
+      var notice_id = noticeLayer.noticeId;
+      var file_no = noticeLayer.fileNo;
+      var file_nm = noticeLayer.fileName;
+
+      return;
       if(!file_no) {
         file_no = 0;
       }
@@ -577,20 +657,31 @@
     else if (identifier == 'r') {
       console.log('단건조회', result)
       if (result) {
-        $('#notice_id').val(result.notice_id);
-        $('#notice_title').val(result.title);
-        $('#notice_date').text(result.date);
-        $('#notice_content').val(result.content);
-        $('#notice_auth').val(result.auth);
-        $('#modify_file').hide();
+    	  
+        //$('#notice_id').val(result.notice_id);
+        //$('#notice_title').val(result.title);
+        //$('#notice_date').text(result.date);
+        //$('#notice_content').val(result.content);
+        //$('#notice_auth').val(result.auth);
+        //$('#modify_file').hide();
+        
+        noticeLayer.noticeId = result.notice_id;
+        noticeLayer.noticeTitle = result.title;
+        noticeLayer.noticeContent = result.content;
+        noticeLayer.noticeAuth = result.auth;
+        noticeLayer.noticeDate = result.date;
+        noticeLayer.modifyFile =  false;
 
         if (result.file_no) {
           $('#download_file').show();
           $('#delete_file_button').show();
           $('#download').attr("href", result.file_relative_path);
-          $('#file_name').val(result.file_ofname);
-          $('#file_no').val(result.file_no);
-          $('#file_path').val(result.file_relative_path);
+          //$('#file_name').val(result.file_ofname);
+          //$('#file_no').val(result.file_no);
+          //$('#file_path').val(result.file_relative_path);
+          noticeLayer.fileName = result.file_ofname;
+          noticeLayer.fileNo = result.file_no;
+          noticeLayer.filePath = result.file_relative_path;
         }
         else {
             $('#file_no').val('');
@@ -631,6 +722,7 @@
               <p class="conTitle">
                 <span>공지사항</span>
               </p>
+              <div id="divNoticeList">
               <form class="search-container">
                 <div class="row">
                   <!-- searchbar -->
@@ -696,21 +788,29 @@
                       <th scope="col">조회수</th>
                     </tr>
                   </thead>
-                  <tbody id="noticeList"></tbody>
+                  <!-- <tbody id="noticeList"></tbody> -->
+                  <tbody id="listInf" v-for="(item,index) in listitem" v-if="listitem.length">
+					      <tr @click="detailview(item.notice_id)" style="cursor : pointer">
+						    <td>{{ item.notice_id }}</td>
+							<td>{{ item.title }}</td>
+							<td>{{ item.date }}</td>
+							<td>{{ item.view_cnt }}</td>									
+					      </tr>
+					</tbody>
                 </table>
               </div>
               <div class="paging_area" id="pagination"></div>
               <div class="btn-wrap">
                 <c:if test="${sessionScope.userType eq 'E'}">
-                  <button type="button" class="btn btn-default" id="write_modal_button">글쓰기</button>
+                  <button type="button" class="btn btn-default" id="write_modal_button" @click="writeModal">글쓰기</button>
                 </c:if>
+              </div>
               </div>
               <h3 class="hidden">풋터 영역</h3>
               <jsp:include page="/WEB-INF/view/common/footer.jsp"></jsp:include>
           </li>
         </ul>
       </div>
-    </div>
     <!-- 공지사항 모달 시작-->
     <div id="layer1" class="layerPop layerType2" style="width: 600px;">
       <input type="hidden" id="notice_id">
@@ -733,7 +833,7 @@
             <tbody>
               <tr>
                 <th scope="row">제목</th>
-                <td colspan="3"><input type="text" class="inputTxt p100" name="notice_title" id="notice_title" autocomplete="off" placeholder="최대 100자까지 입력 가능합니다" required /></td>
+                <td colspan="3"><input type="text" class="inputTxt p100" name="notice_title" id="notice_title" v-model="noticeTitle" autocomplete="off" placeholder="최대 100자까지 입력 가능합니다" required /></td>
               </tr>
               <tr id="datice_date_block">
                 <th scope="row">작성시간</th>
@@ -741,7 +841,7 @@
               </tr>
               <tr>
                 <th scope="row">내용</th>
-                <td colspan="3"><textarea class="inputTxt p100" name="notice_content" id="notice_content" placeholder="최대 1000자까지 입력 가능합니다" required></textarea>
+                <td colspan="3"><textarea class="inputTxt p100" name="notice_content" id="notice_content" v-model="noticeContent" placeholder="최대 1000자까지 입력 가능합니다" required></textarea>
                   <p class="pull-right" id="count_cotent">
                     <span id="count">0</span>/1000
                   </p></td>
@@ -752,12 +852,12 @@
               </tr>
               <tr id="download_file">
                 <th scope="row">첨부파일</th>
-                <td style="border-right: none;"><input id="file_no" type="hidden"> <input id="file_path" type="hidden"> <input id="file_name" value="" readonly></td>
+                <td style="border-right: none;"><input id="file_no" type="hidden" v-model="fileNo" > <input id="file_path" type="hidden" v-model="filePath" > <input id="file_name" value="" v-model="fileName" readonly></td>
                 <td style="border-left: none;"><a class="btn" id="download" href="" download>
                     <button class="btn-default btn-sm">다운로드</button>
                 </a></td>
               <tr>
-              <tr id="modify_file">
+              <tr id="modify_file" v-show="modifyFile">
                 <th scope="row">첨부파일 변경</th>
                 <td style="border-right: none;"><input type="file" class="inputTxt p100" id="upload_modify_file" accept="image/*" /></td>
                 <td style="border-left: none;"><button id="delete_file_button">첨부파일 삭제</button></td>
@@ -765,7 +865,7 @@
               <tr class="auth_block">
                 <th scope="row">열람권한</th>
                 <td colspan="3">
-                  <select class="auth_block" id="notice_auth">
+                  <select class="auth_block" id="notice_auth" v-model="noticeAuth">
                     <option value="0">전체</option>
                     <option value="1">직원</option>
                   </select> 
@@ -775,11 +875,11 @@
                 <td colspan="3" style="position:absolute; top:100%; left:35%; border-right:none;border-left:none">
                   <c:if test="${sessionScope.userType == 'E'}">
                     <div class="btn-group">
-                      <button class="btn-default btn-sm" id="write_button">저장</button>
-                      <button class="btn-default btn-sm" id="modify_button">저장</button>
-                      <button class="btn-default btn-sm" id="modify_modal_button">수정</button>
-                      <button class="btn-default btn-sm" id="delete_button">삭제</button>
-                      <button class="btn-default btn-sm" id="close_button">취소</button>
+                      <button class="btn-default btn-sm" id="write_button" @click="noticeSave">저장</button>
+                      <button class="btn-default btn-sm" id="modify_button" @click="noticeModify">저장</button>
+                      <button class="btn-default btn-sm" id="modify_modal_button" @click="noticeModifyModal">수정</button>
+                      <button class="btn-default btn-sm" id="delete_button" @click="noticeDelete">삭제</button>
+                      <button class="btn-default btn-sm" id="close_button" @click="noticeClose">취소</button>
                     </div>
                   </c:if>
                 </td>
