@@ -73,7 +73,6 @@
 					deleteNotice();
 				},
 				noticeClose: function() {
-					alert(this.noticeTitle);
 					gfCloseModal();
 				}
 		  }
@@ -358,10 +357,16 @@
     var validate = validateIsNull();
 
     if (validate) {
+    	/*
       var title = $('#notice_title').val();
       var content = $('#notice_content').val();
       var auth = $('#notice_auth').val();
-
+	*/
+	  var title = noticeLayer.noticeTitle;
+      var content = noticeLayer.noticeContent;
+      var auth = noticeLayer.noticeAuth;
+      
+      
       var form = $("#myForm")[0];
       form.enctype = 'multipart/form-data';
       var fileData = new FormData(form);
@@ -465,8 +470,8 @@
       $('#delete_button').show();
 
       $('#datice_date_block').show();
-      $('#notice_title').attr('readonly', true);
-      $('#notice_content').attr('readonly', true);
+      $('#notice_title').attr('readonly', false);
+      $('#notice_content').attr('readonly', false);
 
       $('#modify_file').hide();
 
@@ -506,10 +511,16 @@
     var validate = validateIsNull();
 
     if(validate) {
+    	/*
       var notice_id = $('#notice_id').val();
       var title = $("#notice_title").val();
       var content = $("#notice_content").val();
       var auth = $("#notice_auth").val();
+      */
+      var notice_id = noticeLayer.noticeId;
+      var title = noticeLayer.noticeTitle;
+      var content = noticeLayer.noticeContent;
+      var auth = noticeLayer.noticeAuth;
       
       var form = $("#myForm")[0];
       form.enctype = 'multipart/form-data';
@@ -585,8 +596,7 @@
       var notice_id = noticeLayer.noticeId;
       var file_no = noticeLayer.fileNo;
       var file_nm = noticeLayer.fileName;
-
-      return;
+      
       if(!file_no) {
         file_no = 0;
       }
@@ -813,7 +823,7 @@
       </div>
     <!-- 공지사항 모달 시작-->
     <div id="layer1" class="layerPop layerType2" style="width: 600px;">
-      <input type="hidden" id="notice_id">
+      <input type="hidden" id="notice_id" v-model="noticeId" >
       <dl>
         <dt id="dt_write">
           <strong>글쓰기</strong>
@@ -876,8 +886,8 @@
                   <c:if test="${sessionScope.userType == 'E'}">
                     <div class="btn-group">
                       <button class="btn-default btn-sm" id="write_button" @click="noticeSave">저장</button>
-                      <button class="btn-default btn-sm" id="modify_button" @click="noticeModify">저장</button>
-                      <button class="btn-default btn-sm" id="modify_modal_button" @click="noticeModifyModal">수정</button>
+                      <!-- <button class="btn-default btn-sm" id="modify_button" @click="noticeModify">저장</button> -->
+                      <button class="btn-default btn-sm" id="modify_modal_button" @click="noticeModify">수정</button>
                       <button class="btn-default btn-sm" id="delete_button" @click="noticeDelete">삭제</button>
                       <button class="btn-default btn-sm" id="close_button" @click="noticeClose">취소</button>
                     </div>
