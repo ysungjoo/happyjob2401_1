@@ -84,17 +84,11 @@
   function fListWarehouse(currentPage) {
     currentPage = currentPage || 1;
     var sname = $('#sname');
-    var searchKey = document.getElementById("searchKey");
-    // var searchKey = $("#searchKey");
-    // alert("searchKey",searchKey.options[searchKey.selectedIndex]);
-    // if(searchKey.options[searchKey.selectedIndex].value){
-      var oname = searchKey.options[searchKey.selectedIndex].value;
-
-    // } else {
-      // var oname = "all";
-    // }
-
-    // alert("oname",oname);
+    // var searchKey = document.getElementById("searchKey");
+    // var oname = searchKey.options[searchKey.selectedIndex].value;
+    var searchKey = $("#searchKey");
+    var oname = $('#searchKey').val();
+    alert("oname",oname);
 
     console.log("currentPage : " + currentPage);
 
