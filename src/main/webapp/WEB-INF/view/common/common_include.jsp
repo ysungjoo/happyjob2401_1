@@ -37,6 +37,10 @@
 
 <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+<!-- Vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>  
+<script src="https://unpkg.com/vue-router@3.5.1/dist/vue-router.js"></script>
+<script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 

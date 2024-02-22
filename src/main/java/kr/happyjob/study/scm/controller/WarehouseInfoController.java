@@ -71,6 +71,40 @@ public class WarehouseInfoController {
     return "scm/listWarehouse";
   }
   
+//창고 조회
+ @RequestMapping("listWarehouseVue.do")
+ @ResponseBody
+ public Map<String, Object> listWarehouseVue(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
+   
+   logger.info("+ Start " + className + ".listWarehouse");
+   logger.info("   - paramMap : " + paramMap);
+   
+   int currentPage = Integer.parseInt((String) paramMap.get("currentPage")); // 현재 페이지 번호
+   int pageSize = Integer.parseInt((String) paramMap.get("pageSize")); // 페이지 사이즈
+   int pageIndex = (currentPage - 1) * pageSize; // 페이지 시작 row 번호
+   
+   paramMap.put("pageIndex", pageIndex);
+   paramMap.put("pageSize", pageSize);
+   
+   
+   Map<String, Object> resultMap = new HashMap<String, Object>();
+   
+   // 창고 목록 조회
+   List<WarehouseInfoModel> listWarehouseModel = warehouseInfoService.listWarehouse(paramMap);
+   resultMap.put("listWarehouseModel", listWarehouseModel);
+   
+   // 창고 목록 카운트 조회
+   int totalCount = warehouseInfoService.totalCntWarehouse(paramMap);
+   resultMap.put("totalWarehouse", totalCount);
+   resultMap.put("pageSize", pageSize);
+   resultMap.put("currentPageWarehouse", currentPage);
+   
+   
+   logger.info("+ End " + className + ".listWarehouse");
+   
+   return resultMap;
+ }
+  
   // 제품 조회
   @RequestMapping("listWarehouseProduct.do")
   public String listWarehouseProduct(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
@@ -100,6 +134,37 @@ public class WarehouseInfoController {
     
     return "scm/listWarehouseProduct";
   }
+  
+//제품 조회
+ @RequestMapping("listWarehouseProductVue.do")
+ @ResponseBody
+ public Map<String, Object> listWarehouseProductVue(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
+   
+   logger.info("+ Start " + className + ".listWarehouseProduct");
+   logger.info("   - paramMap : " + paramMap);
+   
+   int currentPage = Integer.parseInt((String) paramMap.get("currentPage")); // 현재 페이지 번호
+   int pageSize = Integer.parseInt((String) paramMap.get("pageSize")); // 페이지 사이즈
+   int pageIndex = (currentPage - 1) * pageSize; // 페이지 시작 row 번호
+   
+   paramMap.put("pageIndex", pageIndex);
+   paramMap.put("pageSize", pageSize);
+   
+   Map<String, Object> resultMap = new HashMap<String, Object>();
+   // 제품 목록 조회
+   List<WarehouseInfoModel> listWarehouseProductModel = warehouseInfoService.listWarehouseProduct(paramMap);
+   resultMap.put("listWarehouseProductModel", listWarehouseProductModel);
+   
+   // 제품 목록 카운트 조회
+   int totalCount = warehouseInfoService.totalCntProduct(paramMap);
+   resultMap.put("totalProduct", totalCount);
+   resultMap.put("pageSize", pageSize);
+   resultMap.put("currentPageProduct", currentPage);
+   
+   logger.info("+ End " + className + ".listWarehouseProduct");
+   
+   return resultMap;
+ }
   
   // 창고 저장
   @RequestMapping("saveWarehouse.do")

@@ -10,6 +10,10 @@
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script type="text/javascript" charset="utf-8" src="${CTX_PATH}/js/popFindZipCode.js"></script>
 <script type="text/javascript">
+
+  var warehousevar;
+  var warehouseLayer;
+
   /*창고 페이징 처리*/
   var pageSizeWarehouse = 5;
   var pageBlockSizeWarehouse = 5;
@@ -17,11 +21,28 @@
   /*제품정보 페이징 처리*/
   var pageSizeProduct = 5;
   var pageBlockSizeProduct = 5;
+
+  function init() {
+    warehousevar = new Vue({
+      el : '#warehouseList',
+      data: {
+          listitem: [],
+          listProduct: []
+      },
+      methods: {
+        
+      },
+      created: function() {
+        fListWarehouse();
+      }
+    });
+  }
   
   /*OnLoad event*/
   $(function() {
+    init();
     //창고 목록 조회
-    fListWarehouse();
+    // fListWarehouse();
     //버튼 이벤트 등록
     fRegisterButtonClickEvent();
     //삭제된 정보 표시 체크 클릭
@@ -33,7 +54,8 @@
           }
     });
     //콤보박스
-    selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
+    // selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
+    // selectWarehouseMng();
   });
   /** 버튼 이벤트 등록 */
   function fRegisterButtonClickEvent() {
@@ -63,7 +85,16 @@
     currentPage = currentPage || 1;
     var sname = $('#sname');
     var searchKey = document.getElementById("searchKey");
-    var oname = searchKey.options[searchKey.selectedIndex].value;
+    // var searchKey = $("#searchKey");
+    // alert("searchKey",searchKey.options[searchKey.selectedIndex]);
+    // if(searchKey.options[searchKey.selectedIndex].value){
+      var oname = searchKey.options[searchKey.selectedIndex].value;
+
+    // } else {
+      // var oname = "all";
+    // }
+
+    // alert("oname",oname);
 
     console.log("currentPage : " + currentPage);
 
@@ -76,22 +107,33 @@
     var resultCallback = function(data) {
       flistWarehouseResult(data, currentPage);
     }
-    callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
+    // callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
+    callAjax("/scm/listWarehouseVue.do", "post", "json", true, param, resultCallback);
   }
+
   /*창고 조회 콜백 함수*/
   function flistWarehouseResult(data, currentPage) {
     //alert(data);
-    console.log(data);
+    console.log("data:",data);
+    console.log("data::",data.listWarehouseModel);
+    console.log("flistWarehousrResult currentPage::",currentPage);
     //기존 목록 삭제
-    $('#listWarehouse').empty();
-    $("#listWarehouse").append(data);
+    // $('#listWarehouse').empty();
+    // $("#listWarehouse").append(data);
+    warehousevar.listitem = data.listWarehouseModel;
+
+
     // 총 개수 추출
     var totalWarehouse = $("#totalWarehouse").val();
     //페이지 네비게이션 생성
-    var paginationHtml = getPaginationHtml(currentPage, totalWarehouse, pageSizeWarehouse, pageBlockSizeWarehouse, 'fListWarehouse');
+    // var paginationHtml = getPaginationHtml(currentPage, totalWarehouse, pageSizeWarehouse, pageBlockSizeWarehouse, 'fListWarehouse');
+    var paginationHtml = getPaginationHtml(currentPage, data.totalWarehouse, pageSizeWarehouse, pageBlockSizeWarehouse, 'fListWarehouse');
     $("#warehousePagination").empty().append(paginationHtml);
+
     //현재 페이지 설정
-    console.log("totalWarehouse: " + totalWarehouse);
+    // console.log("totalWarehouse: " + totalWarehouse);
+    console.log("totalWarehouse: " + data.totalWarehouse);
+
     $("#currentPageWarehouse").val(currentPage);
   }
   
@@ -123,28 +165,35 @@
     var resultCallback = function(data) {
       flistProductResult(data, currentPage);
     };
-    callAjax("/scm/listWarehouseProduct.do", "post", "text", true, param,
-        resultCallback);
+    // callAjax("/scm/listWarehouseProduct.do", "post", "text", true, param, resultCallback);
+    callAjax("/scm/listWarehouseProductVue.do", "post", "json", true, param, resultCallback);
   }
   
   /*제품목록 조회 콜백 함수*/
   function flistProductResult(data, currentPage) {
+    console.log("productData",data);
     // 창고 제품정보 + 창고명
     $('#subTitle').text(" - " + $("#tmpwarehouse_nm").val());
     //기존 목록 삭제
-    $("#listWarehouseProduct").empty();
-    // 신규 목록 생성
-    $("#listWarehouseProduct").append(data);
+    // $("#listWarehouseProduct").empty();
+    // // 신규 목록 생성
+    // $("#listWarehouseProduct").append(data);
+    
+    warehousevar.listProduct = data.listWarehouseProductModel;
+
     // 총 개수 추출
     var totalProduct = $("#totalProduct").val();
     //페이지 네비게이션 생성
     var warehouse_nm = $("#tmpwarehouse_nm").val();
     var warehouse_cd = $("#tmpwarehouse_cd").val();
-    var paginationHtml = getPaginationHtml(currentPage, totalProduct,
+    // var paginationHtml = getPaginationHtml(currentPage, totalProduct,
+    //     pageSizeProduct, pageBlockSizeProduct, 'fListProduct', [ warehouse_nm, warehouse_cd ]);
+    var paginationHtml = getPaginationHtml(currentPage, data.totalProduct,
         pageSizeProduct, pageBlockSizeProduct, 'fListProduct', [ warehouse_nm, warehouse_cd ]);
     console.log("paginationHtml : " + paginationHtml);
     $("#productPagination").empty().append(paginationHtml);
-    console.log("totalProduct: " + totalProduct);
+    console.log("totalProduct: " + data.totalProduct);
+    // console.log("totalProduct: " + totalProduct);
     // 현재 페이지 설정
     $("#currentPageProduct").val(currentPage);
   }
@@ -170,8 +219,7 @@
     var resultCallback = function(data) {
       fSelectWarehouseResult(data);
     };
-    callAjax("/scm/selectWarehouse.do", "post", "json", true, param,
-        resultCallback);
+    callAjax("/scm/selectWarehouse.do", "post", "json", true, param, resultCallback);
   }
   //창고정보 단건 조회 콜백 함수
   function fSelectWarehouseResult(data) {
@@ -300,8 +348,7 @@
             var resultCallback = function(data) {
               flistWarehouseResult(data, currentPage);
             };
-            callAjax("/scm/listWarehouse.do", "post", "text", true,
-                param, resultCallback);
+            callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
           } else {
             $("#sname").val("");
             var use_yn = "Y";
@@ -313,8 +360,8 @@
             var resultCallback = function(data) {
               flistWarehouseResult(data, currentPage);
             };
-            callAjax("/scm/listWarehouse.do", "post", "text", true,
-                param, resultCallback);
+            // callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
+            callAjax("/scm/listWarehouseVue.do", "post", "json", true, param, resultCallback);
           }
         });
   }
@@ -337,8 +384,8 @@
     var resultCallback = function(data) {
       flistWarehouseResult(data, currentPage);
     };
-    callAjax("/scm/listWarehouse.do", "post", "text", true, param,
-        resultCallback);
+    // callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
+    callAjax("/scm/listWarehouseVue.do", "post", "json", true, param, resultCallback);
   }
   
   //우편번호 api
@@ -397,6 +444,7 @@
 </script>
 </head>
 <body>
+  <div id="warehouseList">
   <form id="myForm" action="" method="">
     <input type="hidden" id="currentPageWarehouse" value="1"> 
     <input type="hidden" id="currentPageProduct" value="1"> 
@@ -427,15 +475,15 @@
               </p>
               <div class="WarehouseList">
                 <div class="conTitle" style="margin: 0 25px 10px 0; float: left;">
-                           <select id="searchKey" name="searchKey" style="width: 100px;" v-model="searchKey">
+                          <select id="searchKey" name="searchKey" style="width: 100px;" v-model="searchKey">
                             <option value="all" selected="selected">전체</option>
-                           <option value="warehouse_nm">창고명</option>
-                           <option value="wh_mng_nm">담당자명</option>
+                            <option value="warehouse_nm">창고명</option>
+                            <option value="wh_mng_nm">담당자명</option>
                         </select>
                         <input type="text" style="width: 300px; height: 30px;" id="sname" name="sname">
-                            <a href="" class="btnType blue" id="searchBtn" name="btn"> 
-                            <span>검 색</span>
-                            </a> 
+                        <a href="" class="btnType blue" id="searchBtn" name="btn"> 
+                          <span>검 색</span>
+                        </a> 
                     </div>
                 <table class="col">
                   <caption>caption</caption>
@@ -461,7 +509,25 @@
                       <th scope="col">비고</th>
                     </tr>
                   </thead>
-                  <tbody id="listWarehouse"></tbody>
+                  <!-- <tbody id="listWarehouse"></tbody> -->
+                  <tbody id="listInf" v-for="(item,index) in listitem" v-if="listitem.length">
+                    <tr>
+                      <td>{{ item.warehouse_cd }}</td>
+                      <td @click="callfListProduct(item.warehouse_nm, item.warehouse_cd)" style="cursor : pointer">
+                        {{ item.warehouse_nm }}
+                      </td>
+                      <td>{{ item.wh_mng_nm }}</td>
+                      <td>{{ item.tel }}</td>									
+                      <td>{{ item.email }}</td>
+                      <td>{{ item.zip_cd }}</td>
+                      <td>{{ item.addr }} <br/> {{ item.addr_detail }}</td>
+                      <td @click="fPopModalWarehouse(item.warehouse_cd)" style="cursor : pointer">
+                        <a href="javascript:void(0)" class="btnType3 color1">
+                          <span>수정</span>
+                        </a>
+                      </td>                      
+                    </tr>
+                  </tbody>
                 </table>
               </div>
               <div class="paging_area" id="warehousePagination"></div>
@@ -490,11 +556,21 @@
                       <th scope="col">재고수량(EA)</th>
                     </tr>
                   </thead>
-                  <tbody id="listWarehouseProduct">
+                  <!-- <tbody id="listWarehouseProduct">
                     <tr>
                       <td colspan="6">창고를 선택해 주세요.</td>
                     </tr>
+                  </tbody> -->
+                  <tbody id="listWarehouseProduct" v-for="(item,index) in listProduct" v-if="listProduct.length">
+                    <tr>
+                      <td>{{ item.product_cd }}</td>
+                      <td>{{ item.prod_nm }}</td>
+                      <td>{{ item.l_ct_nm }}</td>
+                      <td>{{ item.supply_nm }}</td>
+                      <td>{{ item.stock }}</td>
+                    </tr>
                   </tbody>
+                </table>
                 </table>
               </div>
 
@@ -514,7 +590,7 @@
           <strong>창고 관리</strong>
         </dt>
         <dd class="content">
-           <table class="row">
+          <table class="row">
             <caption>caption</caption>
             <colgroup>
               <col width="120px">
@@ -568,5 +644,6 @@
       <a href="" class="closePop"><span class="hidden">닫기</span></a>
     </div>
   </form>
+  </div>
 </body>
 </html>
