@@ -11,15 +11,43 @@
 <link rel="stylesheet" href="${CTX_PATH}/css/chosen/chosen.css">
 <script src="${CTX_PATH}/js/chosen/chosen.jquery.js"></script>
 <script type="text/javascript">
- 
+  // Vue instance
+  var mainproductvar;
+  
+
   /*제품정보 페이징 처리*/
   var pageSizeMainProduct = 10;
   var pageBlockSizeMainProduct = 5;
 
+  function init(){
+    mainproductvar = new Vue({
+      el: '#myForm',
+      data: {
+        listitem:[]
+      },
+      methods: {
+        
+      },
+      created: function() {
+        fListMainProduct();
+      },
+      filters: {
+        fortmatNumber(value) {
+          // 숫자를 형식화하는 필터 구현 (예: 쉼표 추가)
+          return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+      }
+
+
+    });
+  }
+
   /*OnLoad event*/
   $(document).ready(function() {
+    init();
+
     //제품 목록 조회
-    fListMainProduct();
+    // fListMainProduct();
     //버튼 이벤트 등록
     fRegisterButtonClickEvent();
     //엔터눌렀을때 창고정보 검색되게하기
@@ -29,10 +57,10 @@
       }
     });
     //공급처명 조회 콤보박스
-    selectComCombo("sp", "supply_cd", "sel", "");
+    // selectComCombo("sp", "supply_cd", "sel", "");
     
-    productCombo("l", "l_ct_cd", "sel", "");      /* 조회 종류   l : 대분류  m : 중분류  p:중분류 제품,  
-                                                Combo Name, Option("all" : 전체     "sel" : 선택 ,  중분류 코드(제품 목록 조회시 필수))*/ 
+    // productCombo("l", "l_ct_cd", "sel", "");      /* 조회 종류   l : 대분류  m : 중분류  p:중분류 제품,  
+                                                // Combo Name, Option("all" : 전체     "sel" : 선택 ,  중분류 코드(제품 목록 조회시 필수))*/ 
 
   });
     
@@ -78,7 +106,8 @@
     var resultCallback = function(data) {
       flistMainProductResult(data, currentPage);
     }
-    callAjax("/scm/listMainProduct.do", "post", "text", true, param, resultCallback);
+    // callAjax("/scm/listMainProduct.do", "post", "text", true, param, resultCallback);
+    callAjax("/scm/listMainProductVue.do", "post", "json", true, param, resultCallback);
   }
   
   /* 제품 조회 콜백 함수*/
@@ -86,15 +115,20 @@
     //alert(data);
     console.log(data);
     //기존 목록 비활성화
-    $('#listMainProduct').empty();
-    $("#listMainProduct").append(data);
+    // $('#listMainProduct').empty();
+    // $("#listMainProduct").append(data);
+    
+    mainproductvar.listitem = data.listMainProductModel;
+
     // 총 개수 추출
     var totalMainProduct = $("#totalMainProduct").val();
     //페이지 네비게이션 생성
-    var paginationHtml = getPaginationHtml(currentPage, totalMainProduct, pageSizeMainProduct, pageBlockSizeMainProduct, 'fListMainProduct');
+    // var paginationHtml = getPaginationHtml(currentPage, totalMainProduct, pageSizeMainProduct, pageBlockSizeMainProduct, 'fListMainProduct');
+    var paginationHtml = getPaginationHtml(currentPage, data.totalMainProduct, pageSizeMainProduct, pageBlockSizeMainProduct, 'fListMainProduct');
     $("#mainProductPagination").empty().append(paginationHtml);
     //현재 페이지 설정
-    console.log("totalMainProduct: " + totalMainProduct);
+    // console.log("totalMainProduct: " + totalMainProduct);
+    console.log("totalMainProduct: " + data.totalMainProduct);
     $("#currentPageMainProduct").val(currentPage);
   }
 
@@ -302,8 +336,10 @@ function numberWithCommas(x) {
     $('#listMainProduct').empty();
     currentPage = currentPage || 1;
     var sname = $('#sname');
-    var searchKey = document.getElementById("searchKey");
-    var oname = searchKey.options[searchKey.selectedIndex].value;
+    var searchKey = $('#searchKey');
+    var oname = searchKey.val();
+    // var searchKey = document.getElementById("searchKey");
+    // var oname = searchKey.options[searchKey.selectedIndex].value;
 
     var param = {
     sname : sname.val(),
@@ -315,7 +351,8 @@ function numberWithCommas(x) {
     var resultCallback = function(data) {
       flistMainProductResult(data, currentPage);
     };
-    callAjax("/scm/listMainProduct.do", "post", "text", true, param, resultCallback);
+    // callAjax("/scm/listMainProduct.do", "post", "text", true, param, resultCallback);
+    callAjax("/scm/listMainProductVue.do", "post", "json", true, param, resultCallback);
   }
     
   
@@ -459,17 +496,17 @@ function numberWithCommas(x) {
               </p>
               <div class="MainProductList">
                 <div class="conTitle" style="margin: 0 25px 10px 0; float: left;">
-                           <select id="searchKey" name="searchKey" style="width: 100px;" v-model="searchKey">
-                           <option value="all">전체</option>
-                           <option value="prod_nm">제품명</option>
-                           <option value="l_ct_nm">품목명</option>
-                           <option value="m_ct_nm">상호명</option>
-                        </select>
-                        <input type="text" style="width: 300px; height: 30px;" id="sname" name="sname">
-                            <a href="" class="btnType blue" id="searchBtn" name="btn"> 
-                            <span>검 색</span>
-                            </a> 
-                    </div>
+                    <select id="searchKey" name="searchKey" style="width: 100px;">
+                        <option value="all">전체</option>
+                        <option value="prod_nm">제품명</option>
+                        <option value="l_ct_nm">품목명</option>
+                        <option value="m_ct_nm">상호명</option>
+                    </select>
+                    <input type="text" style="width: 300px; height: 30px;" id="sname" name="sname">
+                    <a href="" class="btnType blue" id="searchBtn" name="btn"> 
+                      <span>검 색</span>
+                    </a> 
+                  </div>
                 <table class="col">
                   <caption>caption</caption>
                   <colgroup>
@@ -494,7 +531,25 @@ function numberWithCommas(x) {
                       <th scope="col">비고</th>
                     </tr>
                   </thead>
-                  <tbody id="listMainProduct"></tbody>
+                  <!-- <tbody id="listMainProduct"></tbody> -->
+                  <tbody id="listMainProduct" v-for="(item,index) in listitem" v-if="listitem.length">
+                    <tr>
+                      <td>{{item.product_cd }}</td>
+                      <td @click="fPopModalMainProductModal(item.product_cd)" style="cursor : pointer">
+                        <a href="javascript:void(0)">{{item.prod_nm}}</a>
+                      </td>
+                      <td>{{item.l_ct_nm}}</td>
+                      <td>{{item.m_ct_nm}}</td>
+                      <td>{{item.warehouse_nm}}</td>
+                      <td>{{ item.purchase_price  | formatNumber }}</td>
+                      <td>{{ item.price | formatNumber}}</td>
+                      <td @click="fPopModalMainProduct(item.product_cd)" style="cursor : pointer">
+                        <a href="javascript:void(0)" class="btnType3 color1">
+                          <span>수정</span>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
               <div class="paging_area" id="mainProductPagination"></div>
@@ -527,40 +582,41 @@ function numberWithCommas(x) {
                 <td><input type="text" class="inputTxt p100" name="product_cd" id="product_cd" maxlength="20" placeholder="제품코드"/>  
                   </td>
                 <th scope="row" width="100px">제품명 <span class="font_red">*</span></th>
-                <td colspan="3"><input type="text" class="inputTxt p100"
-                  name="prod_nm" id="prod_nm" maxlength="100" placeholder="제품명"/></td>
-        
+                <td colspan="3">
+                  <input type="text" class="inputTxt p100" name="prod_nm" id="prod_nm" maxlength="100" placeholder="제품명"/>
+                </td>
               </tr>
-              <tr>
-              
-              <td rowspan="4" style="text-align:center; width:300px; hight:300px;">
+              <tr>              
+                <td rowspan="4" style="text-align:center; width:300px; hight:300px;">
                   <img id="tempImg" style="object-fit: cover; max-width:100%; max-hight:100%;" src="/images/admin/comm/no_image.png" alt="제품사진미리보기">
-                 </td>   
+                </td>   
                 
-                 <th scope="row">품목명<span class="font_red">*</span></th>
-                 <!-- <td width="40" height="25" style="font-size: 100%">상품 대분류&nbsp;</td> -->
-                 <td>
+                <th scope="row">품목명<span class="font_red">*</span></th>
+                <!-- <td width="40" height="25" style="font-size: 100%">상품 대분류&nbsp;</td> -->
+                <td>
                   <input type="hidden" name="l_ct_nm" id="l_ct_nm">
-                  <select id="l_ct_cd" name="l_ct_cd" onChange="javascript:selectmidcat();"></select></td>
+                  <select id="l_ct_cd" name="l_ct_cd" onChange="javascript:selectmidcat();"></select>
+                </td>
                 <!--  <td><input type="text" class="inputTxt p100"
                   name="l_ct_nm" id="l_ct_nm" placeholder="품목명"/></td> -->
 
                   
                   <th scope="row">상호명<span class="font_red">*</span></th>
                   <!-- <td width="40" height="25" style="font-size: 100%">상품 중분류&nbsp;</td> -->
-                  <td> 
-                    <input type="hidden" name="m_ct_nm" id="m_ct_nm">
-                    <select id="m_ct_cd" name="m_ct_cd"></select></td>
-                 <!--  <td><input type="text" class="inputTxt p100"
+                <td> 
+                  <input type="hidden" name="m_ct_nm" id="m_ct_nm">
+                  <select id="m_ct_cd" name="m_ct_cd"></select>
+                </td>
+                <!--  <td><input type="text" class="inputTxt p100"
                   name="m_ct_nm" id="m_ct_nm" placeholder="상호명"/></td> -->
                   
                 <th scope="row">공급처명 <span class="font_red">*</span></th>
                 <td>
                   <input type="hidden" name="supply_nm" id="supply_nm">
-                  <select id="supply_cd" name="supply_cd" onChange="javascript:selectSupplierName()"></select></td>
-                  
-                  </tr>
-                  <tr>
+                  <select id="supply_cd" name="supply_cd" onChange="javascript:selectSupplierName()"></select>
+                </td>                  
+                </tr>
+                <tr>
                 <th scope="row">장비구매액(원)/EA <span class="font_red">*</span></th>
                 <td><input type="text" class="inputTxt p100"
                   name="purchase_price" id="purchase_price" maxlength="11" placeholder="장비구매액"/></td>
@@ -589,8 +645,8 @@ function numberWithCommas(x) {
                 <input name="thumbnail" type="file" id="thumbnail" accept="image/* " required>
     
                     <!-- 파일 미리보기 스크립트 영역 -->
-                       <script>
-                       var file = document.querySelector('#thumbnail');
+            <script>
+              var file = document.querySelector('#thumbnail');
                     
                        file.onchange = function () { 
                            var fileList = file.files ;
@@ -625,7 +681,7 @@ function numberWithCommas(x) {
                                };
                            }; 
                        };
-                                </script>
+              </script>
                                 <!-- 파일 미리보기 스크립트 영역 끝 -->
                                 </span>
                  </td>

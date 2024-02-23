@@ -72,6 +72,38 @@ public class MainProductInfoController {
     return "scm/listMainProduct";
   }
   
+//제품 조회 Vue
+ @RequestMapping("listMainProductVue.do")
+ @ResponseBody
+ public Map<String, Object> listWarehouseVue(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
+   
+   logger.info("+ Start " + className + ".listWarehouse");
+   logger.info("   - paramMap : " + paramMap);
+   
+   int currentPage = Integer.parseInt((String) paramMap.get("currentPage")); // 현재 페이지 번호
+   int pageSize = Integer.parseInt((String) paramMap.get("pageSize")); // 페이지 사이즈
+   int pageIndex = (currentPage - 1) * pageSize; // 페이지 시작 row 번호
+   
+   paramMap.put("pageIndex", pageIndex);
+   paramMap.put("pageSize", pageSize);
+   
+   Map<String, Object> resultMap = new HashMap<String, Object>();
+   
+   // 제품 목록 조회
+   List<MainProductInfoModel> listMainProductModel = mainProductInfoService.listMainProduct(paramMap);
+   resultMap.put("listMainProductModel", listMainProductModel);
+   
+   // 제품 목록 카운트 조회
+   int totalCount = mainProductInfoService.totalCntMainProduct(paramMap);
+   resultMap.put("totalMainProduct", totalCount);
+   resultMap.put("pageSize", pageSize);
+   resultMap.put("currentPageMainProduct", currentPage);
+   
+   logger.info("+ End " + className + ".listMainProduct");
+   
+   return resultMap;
+ }
+  
   // 제품정보 관리 조회
   @RequestMapping("selectMainProduct.do")
   @ResponseBody
