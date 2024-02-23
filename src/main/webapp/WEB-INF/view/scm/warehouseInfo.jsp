@@ -54,8 +54,8 @@
           }
     });
     //콤보박스
-    // selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
-    // selectWarehouseMng();
+    selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
+    selectWarehouseMng();
   });
   /** 버튼 이벤트 등록 */
   function fRegisterButtonClickEvent() {
@@ -288,8 +288,7 @@
       console.log(data);
       fSaveWarehouseResult(data);
     };
-    callAjax("/scm/saveWarehouse.do", "post", "json", true, $("#myForm")
-        .serialize(), resultCallback);
+    callAjax("/scm/saveWarehouse.do", "post", "json", true, $("#myForm").serialize(), resultCallback);
   }
   //창고 저장 콜백 함수
   function fSaveWarehouseResult(data) {
@@ -364,8 +363,10 @@
     $('#listWarehouseProduct').empty();
     currentPage = currentPage || 1;
     var sname = $('#sname');
-    var searchKey = document.getElementById("searchKey");
-    var oname = searchKey.options[searchKey.selectedIndex].value;
+    var searchKey = $('#searchKey');
+    var oname = searchKey.val();
+//    var searchKey = document.getElementById("searchKey");
+    // var oname = searchKey.options[searchKey.selectedIndex].value;
     
     var param = {
       sname : sname.val(),
@@ -603,8 +604,9 @@
               </tr>
               <tr>
                 <th scope="row">담당자ID<span class="font_red">*</span></th>
-                <td><input type="text" class="inputTxt p100" name="wh_mng_id"
-                  id="wh_mng_id" maxlength="50"/></td>
+                <td>
+                	<input type="text" class="inputTxt p100" name="wh_mng_id" id="wh_mng_id" maxlength="50"/>
+                </td>
                 <th scope="row">담당자명</th>
                 <td><select id="wh_mng_nm" name="wh_mng_nm" onChange="javascript:selectWarehouseMng()"></select></td>
               </tr>

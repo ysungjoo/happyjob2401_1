@@ -57,10 +57,11 @@
       }
     });
     //공급처명 조회 콤보박스
-    // selectComCombo("sp", "supply_cd", "sel", "");
+    selectComCombo("sp", "supply_cd", "sel", "");
     
-    // productCombo("l", "l_ct_cd", "sel", "");      /* 조회 종류   l : 대분류  m : 중분류  p:중분류 제품,  
-                                                // Combo Name, Option("all" : 전체     "sel" : 선택 ,  중분류 코드(제품 목록 조회시 필수))*/ 
+    productCombo("l", "l_ct_cd", "sel", "");      
+    /* 조회 종류   l : 대분류  m : 중분류  p:중분류 제품,  
+    Combo Name, Option("all" : 전체     "sel" : 선택 ,  중분류 코드(제품 목록 조회시 필수))*/ 
 
   });
     
