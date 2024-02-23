@@ -10,9 +10,9 @@
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script type="text/javascript" charset="utf-8" src="${CTX_PATH}/js/popFindZipCode.js"></script>
 <script type="text/javascript">
-
+  // Vue instance
   var warehousevar;
-  var warehouseLayer;
+
 
   /*창고 페이징 처리*/
   var pageSizeWarehouse = 5;
@@ -88,7 +88,6 @@
     // var oname = searchKey.options[searchKey.selectedIndex].value;
     var searchKey = $("#searchKey");
     var oname = $('#searchKey').val();
-    alert("oname",oname);
 
     console.log("currentPage : " + currentPage);
 
@@ -430,8 +429,6 @@
 
     var selwhmng = $("#wh_mng_nm").val();
 
-    /* alert("selectWarehouseMng : " + $("#wh_mng_nm").val()); */
-
     $("#wh_mng_id").val(selwhmng);
 
   }
@@ -463,16 +460,19 @@
                 <a href="/system/notice.do" class="btn_set home">메인으로</a> <a class="btn_nav">기준 정보</a> <span class="btn_nav bold">창고정보 관리</span> <a href="" class="btn_set refresh">새로고침</a>
               </p>
               <p class="conTitle">
-                <span>창고정보</span> <span class="fr"> <a href="javascript:fPopModalWarehouse()" class="btnType blue" name="modal"> <span>신규등록</span>
-                </a>
+                <span>창고정보</span> 
+                <span class="fr"> 
+                  <a href="javascript:fPopModalWarehouse()" class="btnType blue" name="modal">      
+                    <span>신규등록</span>
+                  </a>
                 </span>
               </p>
               <div class="WarehouseList">
                 <div class="conTitle" style="margin: 0 25px 10px 0; float: left;">
-                          <select id="searchKey" name="searchKey" style="width: 100px;" v-model="searchKey">
-                            <option value="all" selected="selected">전체</option>
-                            <option value="warehouse_nm">창고명</option>
-                            <option value="wh_mng_nm">담당자명</option>
+                        <select id="searchKey" name="searchKey" style="width: 100px;">
+                          <option value="all" selected="selected">전체</option>
+                          <option value="warehouse_nm">창고명</option>
+                          <option value="wh_mng_nm">담당자명</option>
                         </select>
                         <input type="text" style="width: 300px; height: 30px;" id="sname" name="sname">
                         <a href="" class="btnType blue" id="searchBtn" name="btn"> 
