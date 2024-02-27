@@ -22,269 +22,19 @@
   var pageSizeProduct = 5;
   var pageBlockSizeProduct = 5;
 
-
-  var currentPage;
-  
   function init() {
     warehousevar = new Vue({
       el : '#warehouseList',
       data: {
-          pageSizeWarehouse: 5,
-          pageBlockSizeWarehouse :5,
-          pageSizeProduct : 5,
-          pageBlockSizeProduct : 5,
           listitem: [],
-          listProduct: [],
-          sname : '',
-          oname: 'all',
-          param: {
-            currentPage: currentPage || 1,
-            pageSize: pageSizeWarehouse,
-          },
-          totalWarehouse : '',
-          tmpwarehouse_nm:'',
-          tmpwarehouse_cd:'',
-          subTitle : '',
-          action : '',
-          wh_mng_id: '',
-          wh_mng_nm: '',
-          zip_cd: '',
-          addr: '',
-          addr_detail: '',
-          showDeleteButton: true
-
-
+          listProduct: []
       },
       methods: {
-        updateSubtitle: function(){
-          this.subTitle = ' - ' + this.tmpwarehouse_nm;
-        },
-        deleteWarehouseBtn: function(){
-          showDeleteButton = !showDeleteButton;
-        },
-        /*창고  조회*/
-        fListWarehouse :function(currentPage) {
-          currentPage = this.param.currentPage || 1;
-          // var sname = $('#sname');
-          // var searchKey = $("#searchKey");
-          // var oname = $('#searchKey').val();
-
-          console.log("currentPage : " + this.param.currentPage);
-
-          var param = {
-            sname : this.sname,
-            oname : this.oname,
-            currentPage : this.param.currentPage,
-            pageSize : pageSizeWarehouse
-          };
-          var resultCallback = function(data) {
-            flistWarehouseResult(data, currentPage);
-          };
-          // callAjax("/scm/listWarehouse.do", "post", "text", true, param, resultCallback);
-          callAjax("/scm/listWarehouseVue.do", "post", "json", true, param, resultCallback);
-        },
-        ///
-        /*창고 조회 콜백 함수*/
-        flistWarehouseResult: function(data, currentPage) {
-          //alert(data);
-          console.log("data:",data);
-          console.log("data::",data.listWarehouseModel);
-          console.log("flistWarehousrResult currentPage::",currentPage);
-          //기존 목록 삭제
-          // $('#listWarehouse').empty();
-          // $("#listWarehouse").append(data);
-          warehousevar.listitem = data.listWarehouseModel;
-
-
-          // 총 개수 추출
-          var totalWarehouse = $("#totalWarehouse").val();
-          //페이지 네비게이션 생성
-          // var paginationHtml = getPaginationHtml(currentPage, totalWarehouse, pageSizeWarehouse, pageBlockSizeWarehouse, 'fListWarehouse');
-          var paginationHtml = getPaginationHtml(currentPage, data.totalWarehouse, pageSizeWarehouse, pageBlockSizeWarehouse, 'fListWarehouse');
-          $("#warehousePagination").empty().append(paginationHtml);
-
-          //현재 페이지 설정
-          // console.log("totalWarehouse: " + totalWarehouse);
-          console.log("totalWarehouse: " + data.totalWarehouse);
-
-          // $("#currentPageWarehouse").val(currentPage);
-        },
-
-        /** 버튼 이벤트 등록 */
-        fRegisterButtonClickEvent: function(event, btnId) {
-          alert("event check",event);
-          // $('a[name=btn]').click(function(e) {
-            event.preventDefault();
-            // var btnId = $(this).attr('id');
-            //alert("btnId : " + btnId);
-            switch (btnId) {
-            case 'searchBtn':
-              board_search(); // 창고정보 검색하기
-              break;
-            case 'btnSaveWarehouse'://저장하기
-              fSaveWarehouse();
-              break;
-            case 'btnDeleteWarehouse'://삭제하기
-              fDeleteWarehouse();
-              break;
-            case 'btnCloseWarehouse': //닫기
-              gfCloseModal();
-              break;
-            }
-          // });
-        },
-
-        /*제품목록 조회 이전 페이징 설정*/
-        callfListProduct: function(warehouse_nm, warehouse_cd) {
-          this.tmpwarehouse_nm = warehouse_nm;
-          this.tmpwarehouse_cd = warehouse_cd;
-          
-          fListProduct();
-          
-        },
-
-        /*제품 목록 조회*/
-        fListProduct: function(currentPage, warehouse_nm, warehouse_cd) {
-          //창고코드 매개변수 설정
-          currentPage = currentPage || 1;
-          var warehouse_cd = this.tmpwarehouse_cd;
-          var warehouse_nm = this.tmpwarehouse_nm;
-          
-          var param = {
-              warehouse_nm : warehouse_nm
-            , warehouse_cd : warehouse_cd
-            , currentPage : currentPage
-            , pageSize : pageSizeProduct
-          }
-          
-          console.log("warehouse_cd : " + warehouse_cd);
-          var resultCallback = function(data) {
-            flistProductResult(data, currentPage);
-          };
-          // callAjax("/scm/listWarehouseProduct.do", "post", "text", true, param, resultCallback);
-          callAjax("/scm/listWarehouseProductVue.do", "post", "json", true, param, resultCallback);
-        },
         
-        /*제품목록 조회 콜백 함수*/
-        flistProductResult: function(data, currentPage) {
-          console.log("productData",data);
-          // 창고 제품정보 + 창고명
-          // $('#subTitle').text(" - " + this.tmpwarehouse_nm);
-          //기존 목록 삭제
-          // $("#listWarehouseProduct").empty();
-          // // 신규 목록 생성
-          // $("#listWarehouseProduct").append(data);
-          
-          warehousevar.listProduct = data.listWarehouseProductModel;
-
-          // 총 개수 추출
-          var totalProduct = data.totalProduct;
-          //페이지 네비게이션 생성
-          var warehouse_nm = this.tmpwarehouse_nm;
-          var warehouse_cd = this.tmpwarehouse_nm;
-
-          var paginationHtml = getPaginationHtml(currentPage, data.totalProduct,
-              pageSizeProduct, pageBlockSizeProduct, 'fListProduct', [ warehouse_nm, warehouse_cd ]);
-          console.log("paginationHtml : " + paginationHtml);
-          $("#productPagination").empty().append(paginationHtml);
-          console.log("totalProduct: " + data.totalProduct);
-          // console.log("totalProduct: " + totalProduct);
-        
-        },
-
-        /** 창고정보 모달 실행 */
-        fPopModalWarehouse: function(warehouse_cd) {
-          //신규 저장
-          if (warehouse_cd == null || warehouse_cd == "") {
-            action = 'I';
-            //$("#action").val("I");
-            fInitFormWarehouse();
-            gfModalPop("#layer1");
-          } else {
-            action = 'U';
-            //$("#action").val("U");
-            fSelectWarehouse(warehouse_cd);
-          }
-        },
-
-        /*창고정보 단건 조회*/
-        fSelectWarehouse: function(warehouse_cd) {
-          var param = {
-            warehouse_cd : warehouse_cd
-          };
-          var resultCallback = function(data) {
-            fSelectWarehouseResult(data);
-          };
-          callAjax("/scm/selectWarehouse.do", "post", "json", true, param, resultCallback);
-        },
-
-        // //창고정보 단건 조회 콜백 함수
-        fSelectWarehouseResult: function(data) {
-          if (data.result == "SUCCESS") {
-            gfModalPop("#layer1")
-            fInitFormWarehouse(data.warehouseInfoModel);
-          } else {
-            swal(data.resultMsg);
-          }
-        },
-
-        /** 창고정보 폼 초기화 */
-        fInitFormWarehouse: function(object) {
-           // $("#warehouse_cd").focus();
-          this.$refs.warehouse_cde.focus();
-          
-          if (object == "" || object == null || object == undefined) {
-            warehouse_cd = '';
-            warehouse_nm = '';
-            wh_mng_id = '';
-            wh_mng_nm = '';
-            zip_cd = '';
-            addr = '';
-            addr_detail = '';
-          
-            $("#warehouse_cd").attr("readonly", false);
-            $("#warehouse_cd").css("background", "#FFFFFF");
-            $("#wh_mng_id").attr("readonly", true);
-            $("#wh_mng_id").css("background", "#F5F5F5");
-            $("#zip_cd").attr("readonly", true);
-            $("#zip_cd").css("background", "#F5F5F5");      
-          } else{
-            $("#warehouse_cd").val(object.warehouse_cd);
-            $("#warehouse_nm").val(object.warehouse_nm);
-            $("#wh_mng_id").val(object.wh_mng_id);
-            $("#wh_mng_nm").val(object.wh_mng_id);
-            $("#zip_cd").val(object.zip_cd);
-            $("#addr").val(object.addr);
-            $("#addr_detail").val(object.addr_detail);
-            $("#btnDeleteWarehouse").show();
-          
-            $("#warehouse_cd").attr("readonly", true);
-            $("#warehouse_cd").css("background", "#F5F5F5");
-            $("#wh_mng_id").attr("readonly", true);
-            $("#wh_mng_id").css("background", "#F5F5F5");
-            $("#zip_cd").attr("readonly", true);
-            $("#zip_cd").css("background", "#F5F5F5");
-          } 
-        },
-
-
       },
       created: function() {
-        //창고 목록 조회
-        this.fListWarehouse();
-        //버튼 이벤트 등록
-        this.fRegisterButtonClickEvent();
-        //삭제된 정보 표시 체크 클릭
-        this.checkClickEvent();
-        //엔터눌렀을때 창고정보 검색되게하기
-        this.board_search();
-        //콤보박스
-        selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
-        selectWarehouseMng();
-      },
-      updated: function() {        
-        this.updateSubtitle();
-      },
+        fListWarehouse();
+      }
     });
   }
   
@@ -292,21 +42,21 @@
   $(function() {
     init();
     //창고 목록 조회
-    fListWarehouse();
+    // fListWarehouse();
     //버튼 이벤트 등록
     fRegisterButtonClickEvent();
     //삭제된 정보 표시 체크 클릭
     checkClickEvent();
     //엔터눌렀을때 창고정보 검색되게하기
-    // $("#sname").keypress(function (e) {
-    //       if (e.which == 13){
-    //                 board_search();  // 실행할 이벤트
-    //       }
-    // });
+    $("#sname").keypress(function (e) {
+          if (e.which == 13){
+                    board_search();  // 실행할 이벤트
+          }
+    });
     //콤보박스
     selectComCombo("wh_mng", "wh_mng_nm", "sel", "");
     selectWarehouseMng();
-  }); 
+  });
   /** 버튼 이벤트 등록 */
   function fRegisterButtonClickEvent() {
     $('a[name=btn]').click(function(e) {
@@ -416,7 +166,7 @@
   function flistProductResult(data, currentPage) {
     console.log("productData",data);
     // 창고 제품정보 + 창고명
-    //$('#subTitle').text(" - " + $("#tmpwarehouse_nm").val());
+    $('#subTitle').text(" - " + $("#tmpwarehouse_nm").val());
     //기존 목록 삭제
     // $("#listWarehouseProduct").empty();
     // // 신규 목록 생성
@@ -436,7 +186,7 @@
     console.log("paginationHtml : " + paginationHtml);
     $("#productPagination").empty().append(paginationHtml);
     console.log("totalProduct: " + data.totalProduct);
-    // console.log("totalProduct: " + `);
+    // console.log("totalProduct: " + totalProduct);
     // 현재 페이지 설정
     $("#currentPageProduct").val(currentPage);
   }
@@ -688,11 +438,11 @@
 <body>
   <div id="warehouseList">
   <form id="myForm" action="" method="">
-    <input type="hidden" id="currentPageWarehouse" value="1" v-model="currentPage"> 
-    <input type="hidden" id="currentPageProduct" value="1" v-model="currentPage"> 
-    <input type="hidden" id="tmpwarehouse_nm" value="" v-model="tmpwarehouse_nm"> 
-    <input type="hidden" id="tmpwarehouse_cd" value="" v-model="tmpwarehouse_cd"> 
-    <input type="hidden" name="action" id="action" value="" v-model="action">
+    <input type="hidden" id="currentPageWarehouse" value="1"> 
+    <input type="hidden" id="currentPageProduct" value="1"> 
+    <input type="hidden" id="tmpwarehouse_nm" value=""> 
+    <input type="hidden" id="tmpwarehouse_cd" value=""> 
+    <input type="hidden" name="action" id="action" value="">
     <div id="mask"></div>
     <div id="wrap_area">
       <h2 class="hidden">header 영역</h2>
@@ -712,21 +462,21 @@
               </p>
               <p class="conTitle">
                 <span>창고정보</span> 
-                <span class="fr" @click="fPopModalWarehouse"> 
-                  <a href="javascript:void(0)" class="btnType blue" name="modal">      
+                <span class="fr"> 
+                  <a href="javascript:fPopModalWarehouse()" class="btnType blue" name="modal">      
                     <span>신규등록</span>
                   </a>
                 </span>
               </p>
               <div class="WarehouseList">
                 <div class="conTitle" style="margin: 0 25px 10px 0; float: left;">
-                        <select id="searchKey" name="searchKey" style="width: 100px;" v-model="oname">
+                        <select id="searchKey" name="searchKey" style="width: 100px;">
                           <option value="all" selected="selected">전체</option>
                           <option value="warehouse_nm">창고명</option>
                           <option value="wh_mng_nm">담당자명</option>
                         </select>
-                        <input type="text" style="width: 300px; height: 30px;" id="sname" v-model="sname" name="sname" @keyup.enter="board_search">
-                        <a href="" class="btnType blue" id="searchBtn" name="btn" @click="fRegisterButtonClickEvent($event,searchBtn)"> 
+                        <input type="text" style="width: 300px; height: 30px;" id="sname" name="sname">
+                        <a href="" class="btnType blue" id="searchBtn" name="btn"> 
                           <span>검 색</span>
                         </a> 
                     </div>
@@ -779,7 +529,7 @@
               
               
               <p class="conTitle mt50">
-                <span>창고 세부정보<span id="subTitle">{{ subTitle }}</span></span>
+                <span>창고 세부정보<span id="subTitle"></span></span>
               </p>
               
               <div class="ProductList">
@@ -847,15 +597,15 @@
               <tr>
                 <th scope="row">창고코드<span class="font_red">*</span></th>
                 <td><input type="text" class="inputTxt p100"
-                  name="warehouse_cd" id="warehouse_cd" maxlength="20" v-model="warehouse_cd" ref="warehouse_cd" /></td>
+                  name="warehouse_cd" id="warehouse_cd" maxlength="20"/></td>
                 <th scope="row">창고명 <span class="font_red">*</span></th>
                 <td><input type="text" class="inputTxt p100"
-                  name="warehouse_nm" id="warehouse_nm" maxlength="50" v-model="warehouse_nm"/></td>  
+                  name="warehouse_nm" id="warehouse_nm" maxlength="50"/></td>  
               </tr>
               <tr>
                 <th scope="row">담당자ID<span class="font_red">*</span></th>
                 <td>
-                  <input type="text" class="inputTxt p100" name="wh_mng_id" id="wh_mng_id" maxlength="50" v-model="wh_mng_id"  />
+                	<input type="text" class="inputTxt p100" name="wh_mng_id" id="wh_mng_id" maxlength="50"/>
                 </td>
                 <th scope="row">담당자명</th>
                 <td><select id="wh_mng_nm" name="wh_mng_nm" onChange="javascript:selectWarehouseMng()"></select></td>
@@ -881,9 +631,9 @@
 
 
           <div class="btn_areaC mt30">
-            <a href="" class="btnType blue" id="btnSaveWarehouse" name="btn" @click="fRegisterButtonClickEvent($event,btnSaveWarehouse)"><span>저장</span></a>
-            <a href="" class="btnType blue" id="btnDeleteWarehouse" name="btn" @click="fRegisterButtonClickEvent($event,btnDeleteWarehouse)"><span>삭제</span></a>  
-            <a href="" class="btnType gray" id="btnCloseWarehouse" name="btn" @click="fRegisterButtonClickEvent($event,btnCloseWarehouse)"><span>취소</span></a>
+            <a href="" class="btnType blue" id="btnSaveWarehouse" name="btn"><span>저장</span></a>
+            <a href="" class="btnType blue" id="btnDeleteWarehouse" name="btn"><span>삭제</span></a>  
+            <a href="" class="btnType gray" id="btnCloseWarehouse" name="btn"><span>취소</span></a>
           </div>
         </dd>
       </dl>
