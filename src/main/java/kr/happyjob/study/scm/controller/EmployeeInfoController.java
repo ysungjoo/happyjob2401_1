@@ -41,9 +41,10 @@ public class EmployeeInfoController {
   }
   
   // 직원정보관리 목록 조회
-  @RequestMapping("employeeInfoList.do")
-  public String employeeInfoList(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request,
-      HttpServletResponse response, HttpSession session) throws Exception {
+  @RequestMapping("employeeInfoListVue.do")
+  @ResponseBody
+  public Map<String, Object> employeeInfoListVue(Model model, @RequestParam Map<String, Object> paramMap,
+        HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
     
     logger.info("+ Start " + className + ".employeeInfoList");
     logger.info("   - paramMap : " + paramMap);
@@ -59,17 +60,21 @@ public class EmployeeInfoController {
 
     // 직원정보관리 목록 조회
     List<EmployeeInfoModel> employeeInfoModel = employeeInfoService.employeeInfo(paramMap);
-    model.addAttribute("employeeInfoModel", employeeInfoModel);
+//    model.addAttribute("employeeInfoModel", employeeInfoModel);
     
     // 직원정보관리 목록 카운트 조회
     int totalCount =  employeeInfoService.countEmployeeInfo(paramMap);
-    model.addAttribute("totalCount", totalCount);
-    model.addAttribute("pageSize", pageSize);
-    model.addAttribute("currentPage", currentPage);
+//    model.addAttribute("totalCount", totalCount);
+//    model.addAttribute("pageSize", pageSize);
+//    model.addAttribute("currentPage", currentPage);
     
-    logger.info("+ End " + className + ".employeeInfoList");
-    
-    return "scm/listEmployee";
+    Map<String, Object> resultMap = new HashMap<>();
+    resultMap.put("employeeInfoModel", employeeInfoModel);
+    resultMap.put("totalCount", totalCount);
+    resultMap.put("pageSize", pageSize);
+    resultMap.put("currentPage", currentPage);
+
+    return resultMap;
   } 
   
   // 직원이름 클릭 시 모달창 띄우기
