@@ -12,6 +12,18 @@
 <script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
 <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
 <jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+<!-- 우편번호 조회 -->
+<script
+	src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script type="text/javascript" charset="utf-8"
+	src="${CTX_PATH}/js/popFindZipCode.js"></script>
+
+<script type="text/javascript"
+	src="http://code.jquery.com/jquery-latest.min.js"></script>
+<jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+<!-- sweet alert import -->
+<script src='${CTX_PATH}/js/sweetalert/sweetalert.min.js'></script>
+<!-- seet swal import -->
 </head>
 <body>
 	<input type="hidden" id="currentPage" value="1">
@@ -35,19 +47,17 @@
 							<a href="" class="btn_set refresh">새로고침</a>
 						</p>
 						<div id="cusdata">
-						
-						
-						
-						
+
 							<div class="row">
 								<div class="col-lg-6">
 									<div class="input-group">
-										<select v-model="searchKey"
+										<select v-model="searchKey" name="searchKey"
 											style="width: 90px; height: 34px;">
 											<option value="all">전체</option>
 											<option value="company_nm">회사명</option>
 											<option value="company_mng_nm">담당자명</option>
-										</select> <input type="text" v-model="searchInfo" class="form-control">
+										</select> <input type="text" v-model="searchInfo" id="searchInfo"
+											name="searchInfo" class="form-control">
 									</div>
 								</div>
 								<div class="btn-group" role="group">
@@ -57,15 +67,13 @@
 
 								<div class="input-group"
 									style="display: inline-block; vertical-align: middle; margin-left: 10px;">
-									<input type="checkbox" id="searchUseYn" v-model="searchUseYn">
-									<label for="searchUseYn"
+									<input type="checkbox" id="searchUseYn" name="searchUseYn"
+										v-model="searchUseYn"> <label for="searchUseYn"
 										style="display: inline-block; margin-top: 2px;">비활성화된
 										항목 표시</label>
 								</div>
 							</div>
-							
-							
-							
+
 							<table class="col" style="margin-top: 15px;">
 								<caption>caption</caption>
 								<colgroup>
@@ -82,8 +90,8 @@
 										<th scope="col">활성화여부</th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr v-for="item in cusList">
+								<tbody id="cusListInfo">
+									<tr v-for="item in cusList" @click="detailview(item.loginID)" style="cursor : pointer">
 										<td>{{ item.company_nm }}</td>
 										<td>{{ item.company_mng_nm }}</td>
 										<td>{{ item.mng_tel }}</td>
@@ -91,11 +99,9 @@
 									</tr>
 								</tbody>
 							</table>
-							
-							
+
 							<div class="paging_area" id="Pagination" v-html="pagehtml"></div>
-							
-							
+
 						</div>
 
 					</div>
@@ -105,15 +111,14 @@
 	</div>
 </body>
 <script type="text/javascript">
-
-    var searchList;
+	var searchList;
+	var cusInfoLayer;
 
 	$(document).ready(function() {
 		fn_init();
 		console.log("메인페이지 함수 실행");
 		fCusList();
 	});
-
 
 	function fn_init() {
 		searchList = new Vue({
@@ -129,16 +134,87 @@
 				searchUseYn : false,
 				currentPage : 1,
 				pageSizeInfo : 10,
-				pagehtml :"",
+				pagehtml : "",
 			},
+			methods : {
+				detailview : function(loginID) {
+					cusInfoModalOpen(loginID);
+				}
+			}
+		});
+
+		cusInfoLayer = new Vue({
+			el : "#layer1",
+			data : {
+				loginId : '',
+				customeruserType : '',
+				customeruserId : '',
+				customername : '',
+				customercompanyName : '',
+				customerphoneNumber : '',
+				customeremail : '',
+				zipcode : '',
+				addr : '',
+				addrdetail : '',
+			},
+			methods : {
+				execDaumPostcode : function() {
+					execDaumPostcode();
+					// 여기에 우편번호 찾기 로직 구현
+				},
+				cusInfoSave : function() {
+					// 여기에 저장 로직 구현
+					console.log("저장 로직 실행");
+				},
+				cusInfoDelete : function() {
+					deleteCusInfo();
+					// 여기에 삭제 로직 구현
+					console.log("삭제 로직 실행");
+				},
+				cusInfoClose : function() {
+					gfCloseModal();
+					// 여기에 모달 취소 로직 구현
+					console.log("모달 취소 로직 실행");
+				},
+				closeModal : function() {
+					// 여기에 모달 닫기 로직 구현
+					cusInfoModal();
+					console.log("모달 닫기 로직 실행");
+				}
+			}
 		});
 	}
 
+	$(function() {
+		// 버튼 이벤트 등록
+		fRegisterButtonClickEvent();
+	});
+
+	// 버튼 이벤트 등록 함수
+	function fRegisterButtonClickEvent() {
+		$('a[name=btn]').click(function(e) {
+			e.preventDefault();
+			var btnId = $(this).attr('id');
+			// 적절한 메서드 호출
+			switch (btnId) {
+			case 'btnSaveGrpCod':
+				modalApp.cusInfoSave();
+				break;
+			case 'btnDeleteGrpCod':
+				modalApp.cusInfoDelete();
+				break;
+			case 'btnCloseGrpCod':
+				modalApp.cusInfoClose();
+				break;
+			}
+		});
+	}
+
+	/*기업 고객 조회*/
 	function fCusList(currentPage) {
-		
-		currentPage = currentPage || 1;					
-		
-		console.log("메인페이지 함수 실행3");
+
+		currentPage = currentPage || 1;
+
 		//var vm = this; // 현재 Vue 인스턴스 this를 vm 변수에 할당하여 콜백 함수 내에서 Vue 인스턴스에 접근
 		var params = {
 			searchKey : searchList.searchKey,
@@ -147,79 +223,36 @@
 			currentPage : currentPage,
 			pageSize : searchList.pageSizeInfo
 		};
-		console.log("메인페이지 함수 실행4")
-		// Using jQuery AJAX to perform the POST request
+
 		$.ajax({
 			url : '/scm/cusListInfoVue.do',
 			type : 'POST',
 			data : params,
 			success : function(response) {
 				console.log("!!!!!!!!!!!!!!!! : " + JSON.stringify(response));
-				
+
 				// Assuming the response is already a JavaScript object (not a string)
 				searchList.cusList = response.cusList;
-				
-				console.log("11111111111111111111 : " + JSON.stringify(this.cusList));
-				
+
+				console.log("11111111111111111111 : "
+						+ JSON.stringify(this.cusList));
+
 				searchList.cusListCnt = response.cusListCnt;
-				
-				searchList.pagehtml = getPaginationHtml(currentPage, searchList.cusListCnt, searchList.pageSizeInfo, searchList.pageBlockSize, 'fCusList');
-				var paginationHtml = getPaginationHtml(currentPage, searchList.cusListCnt, searchList.pageSizeInfo, searchList.pageBlockSize, 'fCusList');
-			    console.log("paginationHtml : " + paginationHtml);
-				
+
+				searchList.pagehtml = getPaginationHtml(currentPage,
+						searchList.cusListCnt, searchList.pageSizeInfo,
+						searchList.pageBlockSize, 'fCusList');
+				var paginationHtml = getPaginationHtml(currentPage,
+						searchList.cusListCnt, searchList.pageSizeInfo,
+						searchList.pageBlockSize, 'fCusList');
+				console.log("paginationHtml : " + paginationHtml);
+
 			},
 			error : function(xhr, status, error) {
 				console.error("AJAX 호출 중 오류 발생: ", error);
 			}
 		});
 	};
-	
-
-/*   	function fSearchCusList(currentPage) {
-
-		if ($("input:checkbox[id='searchUseYn']").is(":checked") == false) {
-
-			currentPage = currentPage || 1;
-
-			var param = $('#searchForm').serialize();
-
-			param += "&currentPage=" + currentPage;
-			param += "&pageSize=" + pageSizeInfo;
-
-			console.log("검색조건에 대한 param : " + param);
-			console.log("currentPage : " + currentPage);
-
-			var resultCallback = function(data) {
-				fCusListResult(data, currentPage);
-			};
-
-			//Ajax실행 방식
-			//callAjax("Url",type,return,async or sync방식,넘겨준 값,Callback함수 이름)
-			callAjax("/scm/cusListInfoVue.do", "post", "text", true, param,
-					resultCallback);
-		} else {
-			currentPage = currentPage || 1;
-
-			var param = $('#searchForm').serialize();
-
-			param += "&currentPage=" + currentPage;
-			param += "&pageSize=" + pageSizeInfo;
-			param += "&showY=N";
-
-			console.log("검색조건에 대한 param : " + param);
-			console.log("currentPage : " + currentPage);
-
-			var resultCallback = function(data) {
-				fCusListResult(data, currentPage);
-			};
-
-			//Ajax실행 방식
-			//callAjax("Url",type,return,async or sync방식,넘겨준 값,Callback함수 이름)
-			callAjax("/scm/cusListInfo.do", "post", "text", true, param,
-					resultCallback);
-		}
-
-	}  */
 
 	/* 고객 조회 콜백 함수 */
 	function fCusListResult(data, currentPage) {
@@ -239,6 +272,100 @@
 
 		//현재 페이지 설정
 		$("#currentPage").val(currentPage);
+	}
+
+	// fadeInModal
+	function fadeInModal(identifier, loginId) {
+
+		if (identifier == 'r') {
+			swapModal(identifier);
+			//  모달 초기화
+			initModal(identifier);
+			//  단건 조회
+			selectDetail(loginId, identifier);
+			console.log('fadeInModal : ' + identifier)
+			console.log('login_id : ' + loginId)
+		}
+		// 모달 팝업
+		gfModalPop("#layer1");
+	}
+
+	function swapModal(identifier) {
+		if (identifier == 'r') {
+
+			$('#dt_title').show();
+
+			$('#btnDeleteGrpCod').show();
+			$('#btnDeleteGrpCod').show();
+
+			$('#datice_date_block').show();
+			$('#customer_name').attr('readonly', false);
+			$('#customer_companyName').attr('readonly', false);
+
+		}
+	}
+
+	function initModal(identifier, result) {
+		var name = $('customer_name').val();
+
+		if (identifier == 'r') {
+			console.log('단건조회', result)
+			if (result) {
+
+				cusInfoLayer.loginId = result.loginId;
+				cusInfoLayer.customer_name = result.customer_name;
+				cusInfoLayer.customer_companyName = result.customer_companyName;
+				cusInfoLayer.customer_phoneNumber = result.customer_phoneNumber;
+				cusInfoLayer.customer_email = result.customer_email;
+				cusInfoLayer.zip_code = result.zip_code;
+				cusInfoLayer.addr = result.addr;
+				cusInfoLayer.addr_detail = result.addr_detail;
+
+			}
+		}
+	}
+
+	function selectDetail(loginId, identifier) {
+
+		var param = {
+			loginId : loginId
+		};
+
+		// 공지사항  작성 모달
+		function resultCallback(result) {
+
+			// 공지사항  작성 모달
+			gfModalPop("#layer1");
+			initModal(identifier, result);
+
+		}
+		callAjax("/scm/cusDetailInfo.do", "post", "json", true, param,
+				resultCallback);
+	}
+
+	/** 그룹코드 모달 실행 */
+	function fPopModalComnGrpCod(company_mng_nm) {
+
+		// 신규 저장
+		if (company_mng_nm == null || company_mng_nm == "") {
+			//swal("여기도 찍어봅세  ");
+			// Tranjection type 설정
+			$("#action").val("I");
+
+			// 그룹코드 폼 초기화
+			fInitFormGrpCod();
+
+			// 모달 팝업
+			gfModalPop("#layer1");
+
+			// 수정 저장
+		} else {
+			// Tranjection type 설정
+			$("#action").val("U");
+
+			// 그룹코드 단건 조회
+			fSelectGrpCod(company_mng_nm);
+		}
 	}
 
 	// 기업고객 모달창
@@ -319,6 +446,35 @@
 		return;
 	}
 
+	/* 공지사항 삭제 함수 */
+	function deleteCusInfo() {
+		var isDelete = confirm('정말 삭제하시겠습니까?');
+
+		if (isDelete) {
+			var login_id = cusInfoarea.loginId;
+
+			var param = {
+				login_id : login_id,
+			}
+
+			// 콜백
+			function resultCallback(result) {
+				if (result == 1) {
+					gfCloseModal();
+					fCusList();
+				} else {
+					swal('서버에서 에러가 발생했습니다');
+				}
+			}
+			;
+
+			callAjax("/scm/deleteCusInfo.do", "post", "text", true, param,
+					resultCallback);
+		} else {
+			return false;
+		}
+	}
+
 	// DB업데이트 상태 
 	function getUpdateMessage(data) {
 		if (data.result === "SUCCESS") {
@@ -334,6 +490,48 @@
 			console.log("상태 업데이트 실패");
 			return 0;
 		}
+	}
+	//우편번호 api
+	function execDaumPostcode(q) {
+		new daum.Postcode({
+			oncomplete : function(data) {
+				// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+				// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+				// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+				var addr = ''; // 주소 변수
+				var extraAddr = ''; // 참고항목 변수
+
+				//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+				if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+					addr = data.roadAddress;
+				} else { // 사용자가 지번 주소를 선택했을 경우(J)
+					addr = data.jibunAddress;
+				}
+
+				// 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+				if (data.userSelectedType === 'R') {
+					// 법정동명이 있을 경우 추가한다. (법정리는 제외)
+					// 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+					if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+						extraAddr += data.bname;
+					}
+					// 건물명이 있고, 공동주택일 경우 추가한다.
+					if (data.buildingName !== '' && data.apartment === 'Y') {
+						extraAddr += (extraAddr !== '' ? ', '
+								+ data.buildingName : data.buildingName);
+					}
+				}
+
+				// 우편번호와 주소 정보를 해당 필드에 넣는다.
+				document.getElementById('zip_code').value = data.zonecode;
+				document.getElementById("addr").value = addr;
+				// 커서를 상세주소 필드로 이동한다.
+				document.getElementById("addr_detail").focus();
+			}
+		}).open({
+			q : q
+		});
 	}
 </script>
 

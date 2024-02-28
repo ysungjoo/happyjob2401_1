@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -116,16 +117,24 @@ public class CusInfoController {
 	public String cusDetailInfo(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request,
 			HttpServletResponse response, HttpSession session) throws Exception {
 
-		paramMap.put("loginId", session.getAttribute("loginId")); // 로그인 아이디,
-																	// SCM 관리자명
-																	// 가져올 때 쓰임
-		logger.info("paramMap:" + paramMap);
+		paramMap.put("loginId", session.getAttribute("loginId")); // 로그인 아이디, //
+		// SCM 관리자명 // 가져올 때 쓰임 logger.info("paramMap:" + paramMap);
 
 		List<CusInfoModel> cusDetailInfo = cusInfoService.getCusDetailInfo(paramMap);
 
 		model.addAttribute("cusDetailInfo", cusDetailInfo);
 
 		return "/scm/cusInfoDetail";
+	}
+
+	/* 기업고객 삭제 */
+	@ResponseBody
+	@RequestMapping(value = "deleteCusInfo.do", method = RequestMethod.POST)
+	public int deleteCusInfo(@RequestParam Map<String, Object> param) throws Exception {
+
+		int result = cusInfoService.deleteCusInfo(param);
+
+		return result;
 	}
 
 	// 기업고객 활성화여부 업데이트
