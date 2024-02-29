@@ -104,7 +104,7 @@ public class LoginController {
 	 */
 	@RequestMapping("loginProc.do")
 	@ResponseBody
-	public Map<String, String> loginProc(Model model, @RequestParam Map<String, Object> paramMap,
+	public Map<String, Object> loginProc(Model model, @RequestParam Map<String, Object> paramMap,
 			HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
 
 		logger.info("+ Start LoginController.loginProc.do");
@@ -115,7 +115,8 @@ public class LoginController {
 
 		String result;
 		String resultMsg;
-
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		  
 		if (lgnInfoModel != null) {
 			if ("n".equals(lgnInfoModel.getApproval_cd())) {
 				result = "FALSE";
@@ -148,7 +149,12 @@ public class LoginController {
 				session.setAttribute("usrMnuAtrt", listUsrMnuAtrtModel);
 				session.setAttribute("userType", lgnInfoModel.getMem_author()); // 로그린
 																				// 사용자
-																				// 권란
+			     resultMap.put("loginId",lgnInfoModel.getLgn_id()); 
+			     resultMap.put("userNm",lgnInfoModel.getUsr_nm()); 
+			     resultMap.put("usrMnuAtrt", listUsrMnuAtrtModel);
+			     resultMap.put("userType", lgnInfoModel.getMem_author());
+			     resultMap.put("serverName", request.getServerName());
+			     																				// 권란
 																				// A:
 																				// 관리자
 																				// B:
@@ -161,11 +167,11 @@ public class LoginController {
 			resultMsg = "사용자 로그인 정보가 일치하지 않습니다.";
 		}
 
-		Map<String, String> resultMap = new HashMap<String, String>();
+		//Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("result", result);
 		resultMap.put("resultMsg", resultMsg);
-		resultMap.put("serverName", request.getServerName());
+		//resultMap.put("serverName", request.getServerName());
 
 		logger.info("+ End LoginController.loginProc.do");
 
