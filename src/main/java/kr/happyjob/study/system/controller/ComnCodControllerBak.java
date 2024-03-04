@@ -82,45 +82,7 @@ public class ComnCodController {
     
     return "/system/comnGrpCodList";
   }
-  /**
-  * 공통 그룹 코드 목록 조회
-  */
-  @RequestMapping("vueListComnGrpCod.do")
-  @ResponseBody
-  public Map<String,Object> vuelistComnGrpCod(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request,
-       HttpServletResponse response, HttpSession session) throws Exception {
-		
-		logger.info("+ Start " + className + ".listComnGrpCod");
-		logger.info("   - paramMap : " + paramMap);
-		   
-		
-		int currentPage = Integer.parseInt((String)paramMap.get("currentPage"));	// 현재 페이지 번호
-		int pageSize = Integer.parseInt((String)paramMap.get("pageSize"));			// 페이지 사이즈
-		int pageIndex = (currentPage-1)*pageSize;												// 페이지 시작 row 번호
-				
-		paramMap.put("pageIndex", pageIndex);
-		paramMap.put("pageSize", pageSize);
-		
-		Map<String,Object> resultMap= new HashMap<>();
-		
-		// 공통 그룹코드 목록 조회
-		List<ComnGrpCodModel> listComnGrpCodModel = comnCodService.listComnGrpCod(paramMap);
-		resultMap.put("listComnGrpCodModel", listComnGrpCodModel);
-		
-		// 공통 그룹코드 목록 카운트 조회
-		int totalCount = comnCodService.countListComnGrpCod(paramMap);
-		resultMap.put("totalCntComnGrpCod", totalCount);
-		
-		resultMap.put("pageSize", pageSize);
-		resultMap.put("currentPageComnGrpCod",currentPage);
-		
-		logger.info("+ End " + className + ".listComnGrpCod");
-		
-	
-		return resultMap;
-  }		
-	
-
+  
   /**
    * 공통 그룹 코드 단건 조회
    */
@@ -241,51 +203,6 @@ public class ComnCodController {
     logger.info("+ End " + className + ".listComnDtlCod");
     
     return "/system/comnDtlCodList";
-  }
-  
-  /**
-   * 공통 상세 코드 목록 조회
-   */
-  @RequestMapping("vueListComnDtlCod.do")
-  @ResponseBody
-  public Map<String, Object> vueListComnDtlCod(Model model, @RequestParam Map<String, Object> paramMap, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
-    
-    logger.info("+ Start " + className + ".listComnDtlCod");
-    logger.info("   - paramMap : " + paramMap);
-    
-    int currentPage = Integer.parseInt((String) paramMap.get("currentPage")); // 현재 페이지 번호
-    int pageSize = Integer.parseInt((String) paramMap.get("pageSize")); // 페이지 사이즈
-    int pageIndex = (currentPage - 1) * pageSize; // 페이지 시작 row 번호
-    
-    paramMap.put("pageIndex", pageIndex);
-    paramMap.put("pageSize", pageSize);
-    
-    // 공통 상세코드 목록 조회
-    List<ComnDtlCodModel> listComnDtlCodModel = comnCodService.listComnDtlCod(paramMap);
-    
-    // 공통 상세코드 목록 카운트 조회
-    int totalCount = comnCodService.countListComnDtlCod(paramMap);
-    
-    Map<String, Object> resultMap = new HashMap<String, Object>();
-    resultMap.put("totalCntComnGrpDtlCod", totalCount);
-    resultMap.put("listComnGrpCodDtlModel", listComnDtlCodModel);
-    
-    logger.info("+ End " + className + ".selectComnDtlCod");
-    
-    return resultMap;
-    
-    /*
-    model.addAttribute("listComnDtlCodModel", listComnDtlCodModel);
-    
-    model.addAttribute("totalCntComnDtlCod", totalCount);
-    
-    model.addAttribute("pageSize", pageSize);
-    model.addAttribute("currentPageComnDtlCod", currentPage);
-    
-    logger.info("+ End " + className + ".listComnDtlCod");
-    
-    return "/system/comnDtlCodList";
-    */
   }
   
   /**

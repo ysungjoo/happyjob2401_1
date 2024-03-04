@@ -98,6 +98,7 @@
            DATE_FORMAT(date, '%Y-%m-%d %H:%m') as date,
            noti.auth,
            noti.file_no,
+           noti.view_cnt,
            fil.file_local_path,
            fil.file_relative_path,
            fil.file_ofname,

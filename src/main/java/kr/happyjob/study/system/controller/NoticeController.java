@@ -204,7 +204,6 @@ public class NoticeController {
   @RequestMapping(value="writeNotice.do", method=RequestMethod.POST)
   public int insertNotice(@RequestParam Map<String, Object> param, HttpServletRequest request) throws Exception {
    
-    MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
     
     int auth = Integer.parseInt((String) param.get("auth"));
     
@@ -213,8 +212,10 @@ public class NoticeController {
     int result = 0;
     
     // 첨부파일이 있을 경우
-    if(!param.containsKey("isFile")) {
+    if(param.containsKey("isFile")) {
       
+      MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+       
       // file_no 조회
       int file_no = noticeService.selectFileNo();
       
@@ -272,7 +273,6 @@ public class NoticeController {
   @ResponseBody
   @RequestMapping(value="modifyNotice.do", method=RequestMethod.POST)
   public int updateNotice(@RequestParam Map<String, Object> param, HttpServletRequest request) throws Exception {
-    MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest)request;
     int auth = Integer.parseInt((String)param.get("auth"));
     param.put("auth", auth);
     
@@ -287,6 +287,7 @@ public class NoticeController {
       result = noticeService.updateNotice(param);
     }
     else if(param.containsKey("deleted")) {
+      MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest)request;
       // 기존 첨부파일 삭제  + 글수정
       file_no = Integer.parseInt((String)param.get("file_no"));
       
@@ -313,6 +314,7 @@ public class NoticeController {
       }
     }
     else if(param.containsKey("modified")|| param.containsKey("added")) { // 첨부파일 수정 + 글수정
+      MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest)request;
       // 첨부파일 신규등록 || 첨부파일 수정
       // 기존 파일 번호
       file_no = Integer.parseInt((String)param.get("file_no"));

@@ -712,8 +712,8 @@
               </p>
               <p class="conTitle">
                 <span>창고정보</span> 
-                <span class="fr" @click="fPopModalWarehouse"> 
-                  <a href="javascript:void(0)" class="btnType blue" name="modal">      
+                <span class="fr" > 
+                  <a href="javascript:void(0)" @click="fPopModalWarehouse" class="btnType blue" name="modal">      
                     <span>신규등록</span>
                   </a>
                 </span>
