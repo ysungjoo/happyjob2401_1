@@ -5,7 +5,8 @@
   <select id="listWarehouse" resultType="kr.happyjob.study.scm.model.WarehouseInfoModel"> <!--id=DAO가 호출할 별명 작성 , resultType 반환 값을 담을 model의 디렉터리와 매핑 -->
     SELECT DISTINCT WH.warehouse_cd as warehouse_cd, 
                     WH.warehouse_nm as warehouse_nm, 
-                    UI.name as wh_mng_nm, 
+                    <!-- UI.name as wh_mng_nm,  -->
+                    COALESCE(UI.name, WH.wh_mng_nm) as wh_mng_nm,
                     UI.tel as tel, 
                     UI.mail as email, 
                     WH.zip_cd as zip_cd, 
@@ -88,14 +89,17 @@
   
   <!-- 창고 단건 조회 -->
   <select id="selectWarehouse" resultType="kr.happyjob.study.scm.model.WarehouseInfoModel">
-    SELECT warehouse_cd,
-           warehouse_nm,
-           wh_mng_id,
-           zip_cd,
-           addr,
-           addr_detail 
-      FROM tb_scm_warehouse
-     WHERE warehouse_cd = #{warehouse_cd}
+    SELECT WH.warehouse_cd,
+           WH.warehouse_nm,
+           WH.wh_mng_id,
+           COALESCE(UI.name, WH.wh_mng_nm) as wh_mng_nm,
+           WH.zip_cd,
+           WH.addr,
+           WH.addr_detail 
+      FROM tb_scm_warehouse WH
+      LEFT JOIN tb_userinfo UI 
+      ON UI.loginID = WH.wh_mng_id
+     WHERE WH.warehouse_cd = #{warehouse_cd} 
   </select>
   
   <!-- 창고 등록 -->
@@ -103,7 +107,8 @@
    INSERT INTO tb_scm_warehouse (
                                 warehouse_cd, 
                                 warehouse_nm, 
-                                wh_mng_id, 
+                                wh_mng_id,
+                                wh_mng_nm, 
                                 zip_cd, 
                                 addr, 
                                 addr_detail,
@@ -113,6 +118,7 @@
     SELECT #{warehouse_cd},
            #{warehouse_nm},
            #{wh_mng_id},
+           #{wh_mng_nm},
            #{zip_cd},
            #{addr},
            #{addr_detail},

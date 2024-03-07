@@ -117,7 +117,6 @@ public class LoginController {
 		String resultMsg;
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 
-
 		if (lgnInfoModel != null) {
 			if ("n".equals(lgnInfoModel.getApproval_cd())) {
 				result = "FALSE";
@@ -150,11 +149,16 @@ public class LoginController {
 				session.setAttribute("usrMnuAtrt", listUsrMnuAtrtModel);
 				session.setAttribute("userType", lgnInfoModel.getMem_author()); // 로그린
 																				// 사용자
-	             resultMap.put("loginId",lgnInfoModel.getLgn_id()); 
-	             resultMap.put("userNm",lgnInfoModel.getUsr_nm()); 
-	             resultMap.put("usrMnuAtrt", listUsrMnuAtrtModel);
-	             resultMap.put("userType", lgnInfoModel.getMem_author());
-	             resultMap.put("serverName", request.getServerName());														// 기업회원
+
+			     resultMap.put("loginId",lgnInfoModel.getLgn_id()); 
+			     resultMap.put("userNm",lgnInfoModel.getUsr_nm()); 
+			     resultMap.put("usrMnuAtrt", listUsrMnuAtrtModel);
+			     resultMap.put("userType", lgnInfoModel.getMem_author());
+			     resultMap.put("serverName", request.getServerName());
+			     																				// 권란
+																				// A:
+																				// 관리자
+																				// B:
 																				// C:일반회원
 				session.setAttribute("serverName", request.getServerName());
 			}
@@ -163,10 +167,9 @@ public class LoginController {
 			resultMsg = "사용자 로그인 정보가 일치하지 않습니다.";
 		}
 
-		
 		resultMap.put("result", result);
 		resultMap.put("resultMsg", resultMsg);
-		resultMap.put("serverName", request.getServerName());
+		//resultMap.put("serverName", request.getServerName());
 
 		logger.info("+ End LoginController.loginProc.do");
 
