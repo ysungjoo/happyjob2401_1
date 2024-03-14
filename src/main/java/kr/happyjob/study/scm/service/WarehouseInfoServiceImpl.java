@@ -52,18 +52,38 @@ public class WarehouseInfoServiceImpl implements WarehouseInfoService {
     int ret = warehouseInfoDao.insertWarehouse(paramMap);
     return ret;
   }
+  //창고 유저 등록
+  @Override
+  public int insertWarehouseUserInfo(Map<String, Object> paramMap) throws Exception {
+    int ret = warehouseInfoDao.insertWarehouseUserInfo(paramMap);
+    return ret;
+  }
   //창고 수정
   @Override
   public int updateWarehouse(Map<String, Object> paramMap) throws Exception {
     int ret = warehouseInfoDao.updateWarehouse(paramMap);
     return ret;
   }
+  //창고 유저정보 수정
+  @Override
+  public int updateWarehouseUserInfo(Map<String, Object> paramMap) throws Exception {
+    int ret = warehouseInfoDao.updateWarehouseUserInfo(paramMap);
+    return ret;
+  }
+ 
   //창고 삭제
   @Override
   public int deleteWarehouse(Map<String, Object> paramMap) throws Exception {
     int ret = warehouseInfoDao.deleteWarehouse(paramMap);
     return ret;
   }
+  //창고 유저 정보 삭제
+  @Override
+  public int deleteWarehouseUserInfo(Map<String, Object> paramMap) throws Exception {
+    int ret = warehouseInfoDao.deleteWarehouseUserInfo(paramMap);
+    return ret;
+  }
+  
   //창고 단건 조회
   @Override
   public WarehouseInfoModel selectWarehouse(Map<String, Object> paramMap) throws Exception {

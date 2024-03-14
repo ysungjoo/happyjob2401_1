@@ -1,0 +1,124 @@
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "kr.happyjob.study.mainProductInfo.dao.MainProductInfoDao">
+
+	<select id="selectProductList" resultType="kr.happyjob.study.mainProductInfo.model.Product">
+		SELECT 	p.product_code
+			, 	p.company_code
+			,	c.company_class_name
+			, 	p.file_code
+			, 	p.product_category
+			, 	p.product_name
+			, 	p.product_model_name
+			, 	p.product_model_number
+			, 	p.product_model_price
+			, 	p.produce_company_name
+			, 	p.product_detail
+		FROM 	product p
+		INNER JOIN company c
+				ON p.company_code = c.company_code
+	</select>
+
+	<select id="selectSearchList" resultType="kr.happyjob.study.mainProductInfo.model.Product">
+			SELECT 	p.product_code
+				, 	p.company_code
+        		,	c.company_class_name
+        		, 	p.file_code
+        		, 	p.product_category
+				, 	p.product_name
+        		, 	p.product_model_name
+        		, 	p.product_model_number
+        		, 	p.product_model_price
+        		, 	p.produce_company_name
+        		, 	p.product_detail
+			FROM 	product p
+			INNER JOIN company c
+			ON p.company_code	= c.company_code
+			where
+				<choose>
+					<when test='"produce_company_name".equals(option)'>
+						p.produce_company_name LIKE CONCAT('%', "${keyword}", '%')
+					</when>
+					<when test= '"product_name".equals(option)'>
+						p.product_name LIKE CONCAT('%', "${keyword}", '%')
+					</when>
+					<otherwise>
+						p.product_model_name LIKE CONCAT('%', "${keyword}", '%')
+					</otherwise>
+				</choose>
+	</select>
+
+	<select id="totalCount" resultType="int">
+		SELECT 	count(*)
+		FROM 	product
+	</select>
+
+	<select id="selectDetail" parameterType="_int" resultType = "kr.happyjob.study.mainProductInfo.model.Product">
+		SELECT 	p.product_code
+			, 	p.company_code
+			,	c.company_class_name
+			, 	p.file_code
+			, 	p.product_category
+			, 	p.product_name
+			, 	p.product_model_name
+			, 	p.product_model_number
+			, 	p.product_model_price
+			, 	p.produce_company_name
+			, 	p.product_detail
+		FROM 	product p INNER JOIN company c ON p.company_code = c.company_code
+		WHERE	p.product_code = #{no}
+	</select>
+	<insert id="registerFile" parameterType="kr.happyjob.study.mainProductInfo.model.UploadFile">
+		INSERT INTO file(
+					file_name
+				,	file_path
+				,	file_size
+				,	input_date
+				,	input_user
+				,	input_program
+		)VALUES(
+					#{file_name}
+				,	#{file_path}
+				,	#{file_size}
+				,	#{input_date}
+				,	#{input_user}
+				,	#{input_program}
+		)
+	</insert>
+	<insert id="registerProduct" parameterType="java.util.Map">
+		INSERT INTO product(
+					product_code
+				,	company_code
+				,	file_code
+				,	product_category
+				,	product_name
+				,	product_model_name
+				,	product_model_number
+				,	product_model_price
+				,	produce_company_name
+				,	product_detail
+				,	input_date
+				,	input_user
+				,	input_program
+		)VALUES(
+					#{product_code}
+				,	(SELECT DISTINCT c.company_code FROM company c INNER JOIN product p ON c.company_code = p.company_code WHERE c.company_class_name = #{company_class_name})
+				,	(SELECT f.file_code FROM file f INNER JOIN product p ON f.file_code = p.file_code WHERE f.file_name = #{file_name} and f.file_path = #{file_path})
+				,	#{product_category}
+				,	#{product_name}
+				,	#{product_model_name}
+				,	#{product_model_number}
+				,	#{product_model_price}
+				,	#{produce_company_name}
+				,	#{product_detail}
+				,	#{input_date}
+				,	#{input_user}
+				,	#{input_program}
+		)
+	</insert>
+	<delete id="deleteProduct" parameterType = "_int">
+		DELETE 	*
+		FROM 	product
+		WHERE	product_code = #{product_code}
+	</delete>
+</mapper> -->

@@ -4,7 +4,7 @@
   <!-- 창고 조회 -->
   <select id="listWarehouse" resultType="kr.happyjob.study.scm.model.WarehouseInfoModel"> <!--id=DAO가 호출할 별명 작성 , resultType 반환 값을 담을 model의 디렉터리와 매핑 -->
     SELECT DISTINCT WH.warehouse_cd as warehouse_cd, 
-                    WH.warehouse_nm as warehouse_nm, 
+                    WH.warehouse_nm as warehouse_nm,
                     <!-- UI.name as wh_mng_nm,  -->
                     COALESCE(UI.name, WH.wh_mng_nm) as wh_mng_nm,
                     UI.tel as tel, 
@@ -13,16 +13,20 @@
                     WH.addr as addr,
                     WH.addr_detail as addr_detail
       FROM tb_scm_warehouse WH 
- LEFT JOIN tb_userinfo UI 
-        ON WH.wh_mng_id = UI.loginID
-     WHERE WH.use_yn="Y"
+ 	  LEFT JOIN tb_userinfo UI 
+      ON WH.wh_mng_id = UI.loginID
+      WHERE WH.use_yn="Y"
       <if test="(sname != null) and (!sname.equals(''))">
       <choose>
         <when test="oname eq 'all'.toString()">
-            AND (WH.warehouse_nm LIKE CONCAT('%', #{sname}, '%')            
+            AND (WH.warehouse_cd LIKE CONCAT('%', #{sname}, '%')            
+                 or WH.warehouse_nm LIKE CONCAT('%', #{sname}, '%')
                  or UI.name LIKE CONCAT('%', #{sname}, '%')
                 )
         </when>
+        <when test= "(oname eq 'warehouse_cd'.toString())">
+            AND WH.warehouse_cd LIKE concat('%', #{sname}, '%')
+        </when> 
         <when test= "(oname eq 'warehouse_nm'.toString())">
             AND WH.warehouse_nm LIKE concat('%', #{sname}, '%')
         </when> 
@@ -34,6 +38,7 @@
   ORDER BY WH.enroll_date DESC
      LIMIT #{pageIndex}, #{pageSize}
   </select>
+  
   <!-- 창고 카운트 -->
   <select id="totalCntWarehouse" resultType="int"> 
     SELECT DISTINCT COUNT(*) as total_cnt
@@ -75,6 +80,7 @@
  ORDER BY  PD.enroll_date DESC
     LIMIT #{pageIndex}, #{pageSize}
   </select>
+  
   <!-- 제품 카운트 -->
   <select id="totalCntProduct" resultType="int">
   SELECT DISTINCT COUNT(*) as total_cnt
@@ -95,7 +101,9 @@
            COALESCE(UI.name, WH.wh_mng_nm) as wh_mng_nm,
            WH.zip_cd,
            WH.addr,
-           WH.addr_detail 
+           WH.addr_detail,
+           UI.tel,
+           UI.mail as email
       FROM tb_scm_warehouse WH
       LEFT JOIN tb_userinfo UI 
       ON UI.loginID = WH.wh_mng_id
@@ -132,16 +140,50 @@
                       )
   </insert>
   
+  <insert id="insertWarehouseUserInfo" parameterType="java.util.Map">
+  	 INSERT INTO tb_userinfo
+     	(
+     	loginID,
+     	name,
+     	tel,
+     	mail,
+     	zip_code,
+     	addr,
+     	addr_detail     	  	
+     	)
+     VALUES (
+     	#{wh_mng_id},
+     	#{wh_mng_nm},
+     	#{tel},
+     	#{mail},
+     	#{zip_code},
+     	#{addr},
+     	#{addr_detail}     	
+     )
+  </insert>
+  
   
   <!-- 창고 수정 -->
 <update id="updateWarehouse" parameterType="java.util.Map">
   UPDATE tb_scm_warehouse 
-  SET  warehouse_nm = #{warehouse_nm}
+  SET warehouse_nm = #{warehouse_nm}
      , wh_mng_id = #{wh_mng_id}
+     , wh_mng_nm = #{wh_mng_nm}
      , zip_cd = #{zip_cd}
      , addr = #{addr}
      , addr_detail = #{addr_detail}
   WHERE warehouse_cd = #{warehouse_cd}
+</update>
+
+<update id="updateWarehouseUserInfo" parameterType="java.util.Map">
+  UPDATE tb_userinfo 
+  SET name = #{wh_mng_nm}
+     , zip_code = #{zip_cd}
+     , addr = #{addr}
+     , addr_detail = #{addr_detail}
+     , tel = #{tel}
+     , mail = #{mail}
+  WHERE loginID = #{wh_mng_id}
 </update>
 
   <!-- 창고 삭제 -->
@@ -159,6 +201,12 @@
           FROM tb_scm_supply
           WHERE warehouse_cd = #{warehouse_cd}
         ) = 0
+  </delete>
+  
+   <delete id="deleteWarehouseUserInfo" parameterType="java.util.Map">
+    DELETE
+    FROM tb_userinfo
+    WHERE loginID = #{wh_mng_id}
   </delete>
   
 

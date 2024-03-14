@@ -181,19 +181,25 @@ public class WarehouseInfoController {
     if ("I".equals(action)) {
       // 창고 등록
      int saveResult = warehouseInfoService.insertWarehouse(paramMap);
-     if (saveResult == 0) {
+     int saveUserInfoResult = warehouseInfoService.insertWarehouseUserInfo(paramMap);
+     if (saveResult == 0 || saveUserInfoResult == 0) {
        result = "FAIL";
        resultMsg = "중복된 코드입니다.";
      } else{
      resultMsg = "등록 완료"; }
     } else if ("U".equals(action)) {
       // 창고 수정
+      
       warehouseInfoService.updateWarehouse(paramMap);
+      warehouseInfoService.updateWarehouseUserInfo(paramMap);
+      
       resultMsg = "수정 완료";
     } else if ("D".equals(action)) {
       // 창고 삭제
       int deleteResult = warehouseInfoService.deleteWarehouse(paramMap);
-      if (deleteResult == 0) {
+      int deleteUserInfoResult = warehouseInfoService.deleteWarehouseUserInfo(paramMap);
+//      if (deleteResult == 0) {
+      if (deleteResult == 0 || deleteUserInfoResult == 0) {
         result = "FAIL";
         resultMsg = "삭제가 실패하였습니다.\n해당 창고를 참조하는 제품과 공급처 정보를 확인해주세요.";
       } else {

@@ -25,8 +25,8 @@ import kr.happyjob.study.system.model.ComnGrpCodModel;
 import kr.happyjob.study.system.service.ComnCodService;
 
 @Controller
-@RequestMapping("/system/")
-public class ComnCodController {
+@RequestMapping("/systembak/")
+public class ComnCodControllerBak {
   
   @Autowired
   ComnCodService comnCodService;

@@ -18,10 +18,20 @@ public interface WarehouseInfoDao {
   
   //창고 추가
   public int insertWarehouse(Map<String, Object> paramMap) throws Exception;
+  //창고 유저정보 추가
+  public int insertWarehouseUserInfo(Map<String, Object> paramMap) throws Exception;
+
+  
   //창고 수정
   public int updateWarehouse(Map<String, Object> paramMap) throws Exception;
+  //창고 유저 정보 수정
+  public int updateWarehouseUserInfo(Map<String, Object> paramMap) throws Exception;
+  
   //창고 삭제
   public int deleteWarehouse(Map<String, Object> paramMap) throws Exception;
+  //창고 유저 정보 삭제
+  public int deleteWarehouseUserInfo(Map<String, Object> paramMap) throws Exception;
+  
   //창고 단건 조회
   public WarehouseInfoModel selectWarehouse(Map<String, Object> paramMap) throws Exception;
 }

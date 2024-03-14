@@ -16,6 +16,7 @@ import kr.happyjob.study.scm.dao.MainProductInfoDao;
 import kr.happyjob.study.scm.model.GetWarehouseModel;
 import kr.happyjob.study.scm.model.MainProductInfoModel;
 import kr.happyjob.study.scm.model.MainProductModalModel;
+import kr.happyjob.study.scm.model.MainProductModalSubModel;
 
 @Service
 public class MainProductInfoServiceImpl implements MainProductInfoService {
@@ -55,6 +56,13 @@ public class MainProductInfoServiceImpl implements MainProductInfoService {
     return selectMainProduct;
   }
   
+  //제품정보 selectList 관리조회
+ @Override
+ public List<MainProductModalSubModel> selectSubProduct(Map<String, Object> paramMap) throws Exception {
+	 List<MainProductModalSubModel> selectMainSubProduct = mainProductInfoDao.selectSubProduct(paramMap);
+   return selectMainSubProduct;
+ }
+  
   /* 제품 상세정보 조회*/
   @Override
   public MainProductModalModel mainProductModal(Map<String, Object> paramMap) throws Exception {
@@ -69,43 +77,31 @@ public class MainProductInfoServiceImpl implements MainProductInfoService {
     return getWarehouseInfo;
   };
   
+  //파일 업로드를 위해  file_no 조회
+  @Override
+  public int selectFileNo() throws Exception {
+   return mainProductInfoDao.selectFileNo();
+  }
+  
   // 제품정보 저장
   @Override
-  public int insertMainProduct(Map<String, Object> paramMap,HttpServletRequest request) throws Exception {
-    MultipartHttpServletRequest mpRequest = (MultipartHttpServletRequest)request;
-    
-    // 파일 저장  std_id = 작성자 id , hwk_id = 과제 id  
-    String itemFilePath = productPath + File.separator;
-    FileUtilCho fileUtilCho = new FileUtilCho(mpRequest, rootPath, itemFilePath);
-    Map<String, Object> listFileUtilModel = fileUtilCho.uploadFiles();
-    
-    String delimiter = "/";
-    String logicalpath = delimiter + productPath + delimiter + listFileUtilModel.get("file_nm");
-    listFileUtilModel.put("logi", logicalpath);
-    
-    paramMap.put("file", listFileUtilModel);
-    
-    int ret = mainProductInfoDao.insertMainProduct(paramMap);
-    
+  public int insertMainProduct(Map<String, Object> paramMap) throws Exception {
+    int ret = mainProductInfoDao.insertMainProduct(paramMap);    
     return ret;
   };
   
+  //제품정보 파일 저장
+ @Override
+ public int insertFileMainProduct(Map<String, Object> paramMap) throws Exception {
+   
+   int ret = mainProductInfoDao.insertFileMainProduct(paramMap);
+   
+   return ret;
+ };
+  
   // 제품정보 수정
   @Override
-  public int updateMainProduct(Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
-    MultipartHttpServletRequest umpRequest = (MultipartHttpServletRequest)request;
-    
-    // 파일 저장  std_id = 작성자 id , hwk_id = 과제 id  
-    String itemFilePath = productPath + File.separator;
-    FileUtilCho fileUtilCho = new FileUtilCho(umpRequest, rootPath, itemFilePath);
-    Map<String, Object> listFileUtilModel = fileUtilCho.uploadFiles();
-    
-    String delimiter = "/";
-    String logicalpath = delimiter + productPath + delimiter + listFileUtilModel.get("file_nm");
-    listFileUtilModel.put("logi", logicalpath);
-    
-    paramMap.put("file", listFileUtilModel);
-    
+  public int updateMainProduct(Map<String, Object> paramMap) throws Exception {
     int ret = mainProductInfoDao.updateMainProduct(paramMap);
     return ret;
   };
@@ -116,4 +112,13 @@ public class MainProductInfoServiceImpl implements MainProductInfoService {
     int ret = mainProductInfoDao.deleteMainProduct(paramMap);
     return ret;
   };
+  
+  //제품정보 파일 삭제
+ @Override
+ public int deleteFileMainProduct(Map<String, Object> paramMap) throws Exception {
+   int ret = mainProductInfoDao.deleteFileMainProduct(paramMap);
+   return ret;
+ }
+
+
 }
